@@ -27,5 +27,5 @@ Build the project with
 cmake .. -DCMAKE_TOOLCHAIN_FILE=%PATH_TO_VCPKG%\scripts\buildsystems\vcpkg.cmake
 ```
 
-##Usage
+## Usage
 See ``SatKiosk3D --help`` for the current list of supported options.
