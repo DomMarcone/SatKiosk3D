@@ -51,6 +51,11 @@ std::string _findLine(std::string &inText, std::string &str, std::size_t lineSta
 	return "";//Can't find it...
 }
 
+std::string _findLine(std::string &inText, const char *str, std::size_t lineStart = 0){
+	std::string s(str);
+	_findLine(inText, s, lineStart);
+}
+
 std::string _getLine(std::string &inText, std::size_t start){
 	std::size_t end;
 	
@@ -63,7 +68,7 @@ std::string _getLine(std::string &inText, std::size_t start){
 }
 
 bool _isValidFormat(std::string &plyText){
-	std::string formatLine = _findLine( plyText, std::string("format"));
+	std::string formatLine = _findLine( plyText, "format");
 	
 	if(formatLine.empty()){
 		std::cout << "Couldn't find format line in PLY." << std::endl;

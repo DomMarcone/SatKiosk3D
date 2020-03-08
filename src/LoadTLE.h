@@ -9,6 +9,8 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
+#include <ctime>
+#include <cmath>
 
 #ifndef M_PI
 #define M_PI 3.14159265359
@@ -16,4 +18,4 @@
 
 bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename);
 
-#endif _LOAD_TLE_H
+#endif //_LOAD_TLE_H

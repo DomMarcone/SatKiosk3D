@@ -7,5 +7,6 @@
 #include <fstream>
 
 std::string LoadText(std::string filename);
+std::string LoadText(const char *filename);
 
 #endif //_LOAD_TEXT_H

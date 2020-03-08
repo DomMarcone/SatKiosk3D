@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <ctime>
+#include <cmath>
 
 #define PHYSICS_GM 3.9857605760e5
 

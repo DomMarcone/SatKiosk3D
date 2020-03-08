@@ -20,6 +20,7 @@
 #include <linmath.h>
 
 #include <ctime>
+#include <string>
 
 class RenderEarth{
 private :

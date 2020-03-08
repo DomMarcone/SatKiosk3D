@@ -25,3 +25,8 @@ std::string LoadText(std::string filename){
 	
 	return result;
 }
+
+std::string LoadText(const char *filename){
+	std::string fn(filename);
+	return LoadText(fn);
+}

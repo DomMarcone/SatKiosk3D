@@ -20,6 +20,7 @@
 #include <linmath.h>
 
 #include <ctime>
+#include <string>
 
 RenderEarth::RenderEarth(Camera *cam){
 	init();
@@ -32,12 +33,15 @@ RenderEarth::RenderEarth(){
 
 void RenderEarth::init(){
 	Image earth_image_diff, earth_image_night;
-	
+	std::string plyText;
+
 	et.setRotationOffset(-3.1415928);
 	
-	earth_model = PlyToFormat3D(
-			LoadText("res/models/earth.ply")
-		);
+	plyText = LoadText("res/models/earth.ply");
+
+	earth_model = PlyToFormat3D(plyText);
+	plyText.clear();
+
 	std::cout << "earth model loaded." << std::endl;
 	
 	LoadImagePNG(earth_image_diff, "res/images/map_diff.png");
