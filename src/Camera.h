@@ -4,6 +4,7 @@
 #define _CAMERA_H
 
 #include <linmath.h>
+#include <cmath>
 
 #define MAX_DRAW_DISTANCE 1800000.f
 

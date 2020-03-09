@@ -3,6 +3,7 @@
 #include "Camera.h"
 
 #include <linmath.h>
+#include <cmath>
 
 Camera::Camera(){
 	aspect = 1.f;

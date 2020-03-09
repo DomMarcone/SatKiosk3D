@@ -17,14 +17,15 @@ if (WIN32)
 	find_package(Threads REQUIRED)
 	find_package(CURL CONFIG REQUIRED)
 else (WIN32)
+	find_package(PkgConfig)
 	find_package(PNG)
 	find_package(glfw3 CONFIG)
 	find_package(Threads)
-	find_package(CURL CONFIG)
-	if(NOT CURL_FOUND)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lcurl")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lcurl")
-	endif(NOT CURL_FOUND)
+	if( NOT PKGCONFIG_FOUND )
+		find_package(CURL CONFIG)
+	else( NOT PKGCONFIG_FOUND )
+		pkg_check_modules(CURL REQUIRED IMPORTED_TARGET libcurl)
+	endif( NOT PKGCONFIG_FOUND )
 endif (WIN32)
 
 include_directories(${GLFW_INCLUDE_DIRS})
@@ -37,6 +38,9 @@ add_library(glad
 	${DEPS_DIR}/glad/include/KHR/khrplatform.h
 )
 target_include_directories(glad PUBLIC ${DEPS_DIR}/glad/include/ )
+
+set(${CMAKE_CXX_COMPILER} /usr/bin/g++)
+set(${CMAKE_C_COMPILER} /usr/bin/gcc) 
 
 add_library(SatKiosk3DLib
 	${SRC_DIR}/Camera.h
@@ -88,8 +92,14 @@ target_link_libraries(SatKiosk3DLib PRIVATE glfw )
 if (WIN32)
 	target_link_libraries(SatKiosk3DLib PRIVATE CURL::libcurl )
 else (WIN32)
-	target_link_libraries(SatKiosk3DLib PRIVATE ${CURL_LIBRARIES})
-	target_link_libraries(SatKiosk3DLib ${CMAKE_DL_LIBS})
+	if( CURL_FOUND )
+		target_link_libraries(SatKiosk3DLib PRIVATE ${CURL_LIBRARIES})
+	else( CURL_FOUND )
+		target_compile_options(SatKiosk3DLib PRIVATE -lcurl -lm)
+		set(${CMAKE_CXX_FLAGS} "${CMAKE_CXX_FLAGS} -L/usr/lib/x86_64-linux-gnu/libcurl.so")
+		set(${CMAKE_C_FLAGS} "${CMAKE_C_FLAGS} -lcurl -lm")
+	endif( CURL_FOUND )
+	target_link_libraries(SatKiosk3DLib PUBLIC ${CMAKE_DL_LIBS})
 	target_include_directories(SatKiosk3DLib PRIVATE ${CURL_INCLUDE_DIR})
 endif(WIN32)
 target_include_directories(SatKiosk3DLib PUBLIC ${PNG_INCLUDE_DIR} )
@@ -102,8 +112,14 @@ if( NOT CMAKE_BUILD_TYPE )
 	set(CMAKE_BUILD_TYPE Debug)
 endif( NOT CMAKE_BUILD_TYPE )
 
+if(WIN32)
+	set(RES_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
+else(WIN32)
+	set(RES_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
+endif(WIN32)
+
 #copy the res directory to the output
 file(
 	COPY ${CMAKE_CURRENT_SOURCE_DIR}/${RES_DIR}
-	DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
+	DESTINATION ${RES_OUT_DIR}
 )
