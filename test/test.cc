@@ -132,12 +132,12 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset){
 		GraphicsState.camAttrib.gps.altitude = 0.f;
 }
 
-void resize_callback(GLFWwindow *window, int width, int height){	
+void resize_callback(GLFWwindow *window, int width, int height){
 	GraphicsState.width = width;
 	GraphicsState.height = height;
 	
-	glViewport(0, 0, 
-		width, 
+	glViewport(0, 0,
+		width,
 		height
 	);
 	
@@ -300,8 +300,11 @@ int main(int argc, char **argv){
 	rt = new RenderTLE(GraphicsState.camera);
 	
 	if(!rt->loadFile( tle_file )){
-		std::cout << "Downloading TLE Data." << std::endl;
+		std::cout << "Attemptint to download TLE Data." << std::endl;
 		FetchTLE( tle_url );
+		if(!rt->loadFile( tle_file )){
+			std::cout << "Unable to aquire " << tle_url << std::endl;
+		}
 	}
 	
 	while(!glfwWindowShouldClose(GraphicsState.window)){
