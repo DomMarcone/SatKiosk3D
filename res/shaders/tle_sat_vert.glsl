@@ -17,5 +17,6 @@ void main() {
 	);
 
 	gl_Position = uViewProjection * model[gl_VertexID] * pos;
-	gl_PointSize = 2.35 * 3.0;//No intense reasoning behind this
+	gl_PointSize = (4500.0) / exp2(log(gl_Position.z));//No intense reasoning behind this
+	gl_PointSize = max(gl_PointSize, 2.0);
 }
