@@ -74,7 +74,7 @@ mat4x4 &EarthTransform::getTransform(){
 	return transform;
 }
 
-vec3 &EarthTransform::getSunDirection(){
+vec3 *EarthTransform::getSunDirection(){
 	double earth_orbital_postion = fmod(
 		difftime(
 			current_time,
@@ -93,5 +93,5 @@ vec3 &EarthTransform::getSunDirection(){
 	sun_direction[1] = 0.f;
 	sun_direction[2] = (float)sin(earth_orbital_postion);
 	
-	return sun_direction;
+	return &sun_direction;
 }

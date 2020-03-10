@@ -73,6 +73,8 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/TLEType.h
 	${SRC_DIR}/RenderEarth.h
 	${SRC_DIR}/RenderEarth.cc
+	${SRC_DIR}/RenderSun.h
+	${SRC_DIR}/RenderSun.cc
 	${SRC_DIR}/RenderTLE.h
 	${SRC_DIR}/RenderTLE.cc
 	${SRC_DIR}/TLEToMat4x4.h

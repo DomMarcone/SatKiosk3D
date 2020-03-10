@@ -25,6 +25,7 @@
 #include <FetchTLE.h>
 #include <RenderEarth.h>
 #include <RenderTLE.h>
+#include <RenderSun.h>
 
 #define DEFAULT_WINDOW_HEIGHT 540
 #define DEFAULT_WINDOW_WIDTH 960
@@ -151,6 +152,7 @@ void error_callback(int error, const char* description){
 int main(int argc, char **argv){
 	RenderEarth *re;
 	RenderTLE *rt;
+	RenderSun *rs;
 	
 	std::string tle_url = TLE_URL, tle_file = TLE_FILE;
 	
@@ -298,9 +300,10 @@ int main(int argc, char **argv){
 	
 	re = new RenderEarth(GraphicsState.camera);
 	rt = new RenderTLE(GraphicsState.camera);
+	rs = new RenderSun(GraphicsState.camera);
 	
 	if(!rt->loadFile( tle_file )){
-		std::cout << "Attemptint to download TLE Data." << std::endl;
+		std::cout << "Attempting to download TLE Data." << std::endl;
 		FetchTLE( tle_url );
 		if(!rt->loadFile( tle_file )){
 			std::cout << "Unable to aquire " << tle_url << std::endl;
@@ -401,6 +404,9 @@ int main(int argc, char **argv){
 			rt->computePositions(current_time, seconds);
 		}
 		
+		rs->setDirection(re->getSunDirection());
+		
+		rs->draw();
 		re->draw();
 		rt->draw();
 		
@@ -408,8 +414,14 @@ int main(int argc, char **argv){
         glfwPollEvents();
 	}
 	
+	delete rs;
+	std::cout << "deleted RenderSun." << std::endl;
+	delete rt;
+	std::cout << "deleted RenderTLE." << std::endl;
 	delete re;
+	std::cout << "deleted RenderEarth." << std::endl;
 	delete GraphicsState.camera;
+	std::cout << "deleted Camera." << std::endl;
 	
 	glFlush();
 	

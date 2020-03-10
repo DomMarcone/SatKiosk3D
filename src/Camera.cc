@@ -67,6 +67,8 @@ float Camera::getYaw(){ return yaw; }
 
 float Camera::getTilt(){ return tilt; }
 
+float Camera::getAspect(){ return aspect; }
+
 void Camera::faceTarget(vec3 target){
 	vec3 vectorToTarget;
 	float distanceToTarget;

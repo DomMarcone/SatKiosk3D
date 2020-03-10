@@ -54,7 +54,7 @@ public :
 	void setRotationOffset(float r);
 	
 	mat4x4 &getTransform();
-	vec3 &getSunDirection();
+	vec3 *getSunDirection();
 };
 
 #endif //_EARTH_TRANSFORM_H

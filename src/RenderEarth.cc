@@ -70,9 +70,9 @@ void RenderEarth::init(){
 }
 
 RenderEarth::~RenderEarth(){
-	DeleteFormat3D(earth_model);
 	glDeleteProgram(program);
 	delete earth_drawer;
+	DeleteFormat3D(earth_model);
 }
 
 void RenderEarth::setCamera(Camera *cam){
@@ -81,7 +81,10 @@ void RenderEarth::setCamera(Camera *cam){
 
 void RenderEarth::setTime(time_t t){
 	et.setCurrentTime(t);
+	sunDirection = et.getSunDirection();
 }
+
+vec3 *RenderEarth::getSunDirection(){ return sunDirection; }
 
 void RenderEarth::draw(){
 	glUseProgram(program);
@@ -99,8 +102,8 @@ void RenderEarth::draw(){
 		GL_FALSE, 
 		(const GLfloat*) camera->getTransform()
 	);
-
-	glUniform3fv(uSunDirection, 1, et.getSunDirection());
+	
+	glUniform3fv(uSunDirection, 1, *sunDirection);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, earth_texture_diff);

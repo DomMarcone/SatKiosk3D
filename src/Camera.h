@@ -33,6 +33,7 @@ public :
 		
 	float getYaw();
 	float getTilt();
+	float getAspect();
 	
 	void faceTarget(vec3 target);
 	

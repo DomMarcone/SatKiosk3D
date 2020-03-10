@@ -32,6 +32,8 @@ private :
 	DrawFormat3D *earth_drawer;
 	EarthTransform et;
 	
+	vec3 *sunDirection;
+	
 	Camera *camera;
 	
 	void init();
@@ -44,6 +46,8 @@ public :
 	
 	void setCamera(Camera *cam);
 	void setTime(time_t t);
+	
+	vec3 *getSunDirection();
 	
 	void draw();
 };
