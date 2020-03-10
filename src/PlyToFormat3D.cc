@@ -53,7 +53,7 @@ std::string _findLine(std::string &inText, std::string &str, std::size_t lineSta
 
 std::string _findLine(std::string &inText, const char *str, std::size_t lineStart = 0){
 	std::string s(str);
-	_findLine(inText, s, lineStart);
+	return _findLine(inText, s, lineStart);
 }
 
 std::string _getLine(std::string &inText, std::size_t start){
@@ -487,7 +487,6 @@ Format3D *PlyToFormat3D(std::string &plyText){
 	int verts, faces;
 	std::size_t position = 0;
 	Format3D *result;
-	
 	//clock_t end, start = clock();
 	
 	_vectorAttribArray vaa;

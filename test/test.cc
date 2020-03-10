@@ -162,12 +162,11 @@ int main(int argc, char **argv){
 	}
 	
 	glfwSetErrorCallback(error_callback);
-		
+	
 	glfwWindowHint( GLFW_CLIENT_API, GLFW_OPENGL_ES_API );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 1);
 	
-
 	//parse arguments
 	for(int i=0; i<argc; ++i){
 		char *argument = argv[i];
@@ -296,6 +295,7 @@ int main(int argc, char **argv){
 	GraphicsState.camAttrib.gps.latitude = 0.f;
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	re = new RenderEarth(GraphicsState.camera);
 	rt = new RenderTLE(GraphicsState.camera);
 	

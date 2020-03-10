@@ -38,10 +38,11 @@ void RenderEarth::init(){
 	et.setRotationOffset(-3.1415928);
 	
 	plyText = LoadText("res/models/earth.ply");
-
+	
 	earth_model = PlyToFormat3D(plyText);
+	
 	plyText.clear();
-
+	
 	std::cout << "earth model loaded." << std::endl;
 	
 	LoadImagePNG(earth_image_diff, "res/images/map_diff.png");
