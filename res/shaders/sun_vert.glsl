@@ -11,14 +11,13 @@ uniform float uAspect;
 out vec2 vCoord;
 
 void main() {
-	vec4 pos = uViewProjection * vec4(1000000.0 * uSunDirection, 1.0);
+	vec4 pos = uViewProjection * vec4(1.5e11 * uSunDirection, 1.0);
 	
 	//Because we're only rendering 6 verts, branching shouldn't cause problems.
 	if(pos.w < 0.0){
 		gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 	} else {
-		pos.xyz = pos.xyz/pos.w;
-		pos.w = 1.0;
+		pos = pos/pos.w;
 		
 		gl_Position = pos + vec4(aPos, 1.0);
 		gl_Position.y *= uAspect;

@@ -157,6 +157,7 @@ int main(int argc, char **argv){
 	std::string tle_url = TLE_URL, tle_file = TLE_FILE;
 	
 	bool show_gl_info = false;
+	bool multisample = false;
 	
 	if(!glfwInit()){
 		std::cout << "Error initializing glfw." << std::endl;
@@ -168,6 +169,7 @@ int main(int argc, char **argv){
 	glfwWindowHint( GLFW_CLIENT_API, GLFW_OPENGL_ES_API );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 1);
+	
 	
 	//parse arguments
 	for(int i=0; i<argc; ++i){
@@ -218,6 +220,12 @@ int main(int argc, char **argv){
 			continue;
 		}
 		
+		if(strcmp(argument, "-a")==0){
+			std::cout << "Multisampling enabled." << std::endl;
+			glfwWindowHint( GLFW_SAMPLES, 4 );
+			multisample = true;
+		}
+		
 		if(strcmp(argument, "-h")==0 ||
 			strcmp(argument, "--help")==0
 			){
@@ -227,6 +235,7 @@ int main(int argc, char **argv){
 			std::cout << " -f        : Run in full screen." << std::endl;
 			std::cout << " -v        : Display version information." << std::endl;
 			std::cout << " -g        : Display OpenGL information." << std::endl;
+			std::cout << " -a        : Enable multisampling." << std::endl;
 			std::cout << " -d [url]  : Download a TLE file from a URL." << std::endl;
 			std::cout << " -l [file] : Load a local TLE file." << std::endl;
 			std::cout << " -h --help : Display this." << std::endl;
@@ -285,6 +294,10 @@ int main(int argc, char **argv){
 		GraphicsState.width,
 		GraphicsState.height
 	);
+	
+	if( multisample ){
+		glEnable(GL_MULTISAMPLE);
+	}
 	
 	GraphicsState.camera = new Camera();
 	GraphicsState.camera->setViewSize(
