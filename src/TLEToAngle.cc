@@ -25,7 +25,7 @@ float TLEToAngle(tle_t *t, time_t current_time, float seconds){
 	)/period;
 	
 	angular_position *= 3.14159265*2.0;
-	angular_position -= t->mean_anomaly;
+	angular_position += t->mean_anomaly;
 	angular_position -= 3.14159256;
 	
 	angular_position += t->eccentricity * -cos(angular_position);

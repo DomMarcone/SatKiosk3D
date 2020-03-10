@@ -29,7 +29,7 @@
 #define DEFAULT_WINDOW_HEIGHT 540
 #define DEFAULT_WINDOW_WIDTH 960
 
-#define VERSION "0.0"
+#define VERSION "0.01"
 
 #define TLE_URL "http://www.celestrak.com/NORAD/elements/active.txt"
 #define TLE_FILE "active.txt"
@@ -380,7 +380,7 @@ int main(int argc, char **argv){
 			
 			float seconds = (float)((clock()-sync_tick)%CLOCKS_PER_SEC);
 			time_t current_time = -1;
-			struct tm *gm_current_time;
+			struct tm *tm_current_time;
 			time(&current_time);
 			
 			if(current_time != last_time)
@@ -390,13 +390,11 @@ int main(int argc, char **argv){
 			
 			seconds /= CLOCKS_PER_SEC;
 			
-			gm_current_time = gmtime(&current_time);
+			tm_current_time = gmtime(&current_time);
 			
-			gm_current_time->tm_sec += GraphicsState.time_offset;
+			tm_current_time->tm_sec += GraphicsState.time_offset;
 			
-			current_time = mktime(gm_current_time);
-			
-			
+			current_time = mktime(tm_current_time);
 			
 			re->setTime(current_time);
 		
