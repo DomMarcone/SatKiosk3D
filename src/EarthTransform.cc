@@ -69,8 +69,8 @@ mat4x4 &EarthTransform::getTransform(){
 	mat4x4 rotate_tilt;
 	mat4x4_identity(transform);
 	
-	mat4x4_rotate_Z(rotate_tilt, transform, tilt/2.f);
-	mat4x4_rotate_Y(transform, rotate_tilt, (float)earth_rotation);
+	intrin_mat4x4_rotate_Z(rotate_tilt, transform, tilt/2.f);
+	intrin_mat4x4_rotate_Y(transform, rotate_tilt, (float)earth_rotation);
 	
 	return transform;
 }

@@ -34,8 +34,8 @@ void Camera::update(){
 	mat4x4_identity(view);
 	//mat4x4_identity(yaw_m);
 	
-	mat4x4_rotate_X(tilt_m, view, tilt);
-	mat4x4_rotate_Y(rot, tilt_m, yaw);
+	intrin_mat4x4_rotate_X(tilt_m, view, tilt);
+	intrin_mat4x4_rotate_Y(rot, tilt_m, yaw);
 	
 	mat4x4_translate(trans, -position[0], -position[1], -position[2]);
 	
