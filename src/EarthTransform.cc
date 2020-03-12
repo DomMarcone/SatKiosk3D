@@ -3,6 +3,7 @@
 #include "EarthTransform.h"
 
 #include <linmath.h>
+#include <intrin_linmath.h>
 
 #include <ctime>
 #include <iostream>

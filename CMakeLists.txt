@@ -39,8 +39,10 @@ add_library(glad
 )
 target_include_directories(glad PUBLIC ${DEPS_DIR}/glad/include/ )
 
-set(${CMAKE_CXX_COMPILER} /usr/bin/g++)
-set(${CMAKE_C_COMPILER} /usr/bin/gcc) 
+if(UNIX)
+	set(${CMAKE_CXX_COMPILER} /usr/bin/g++)
+	set(${CMAKE_C_COMPILER} /usr/bin/gcc) 
+endif(UNIX)
 
 add_library(SatKiosk3DLib
 	${SRC_DIR}/Camera.h
@@ -83,6 +85,7 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/TLEToAngle.cc
 	${SRC_DIR}/LoadTLE.h
 	${SRC_DIR}/LoadTLE.cc
+	${SRC_DIR}/intrin_linmath.h
 )
 
 target_link_libraries(SatKiosk3DLib PUBLIC ${PNG_LIBRARY})
@@ -98,7 +101,7 @@ else (WIN32)
 		target_link_libraries(SatKiosk3DLib PRIVATE ${CURL_LIBRARIES})
 	else( CURL_FOUND )
 		target_compile_options(SatKiosk3DLib PRIVATE -lcurl -lm)
-		set(${CMAKE_CXX_FLAGS} "${CMAKE_CXX_FLAGS} -L/usr/lib/x86_64-linux-gnu/libcurl.so")
+		set(${CMAKE_CXX_FLAGS} "${CMAKE_CXX_FLAGS} -lcurl -lm")
 		set(${CMAKE_C_FLAGS} "${CMAKE_C_FLAGS} -lcurl -lm")
 	endif( CURL_FOUND )
 	target_link_libraries(SatKiosk3DLib PUBLIC ${CMAKE_DL_LIBS})
@@ -106,6 +109,21 @@ else (WIN32)
 endif(WIN32)
 target_include_directories(SatKiosk3DLib PUBLIC ${PNG_INCLUDE_DIR} )
 target_include_directories(SatKiosk3DLib PUBLIC ${SRC_DIR} )
+
+#intrinsics
+if(WIN32)
+	#nothing to do here
+else(WIN32)
+	if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES x86_64 )
+		target_compile_options(SatKiosk3DLib PRIVATE -mfpmath=sse -mmmx -msse -msse2 -msse3)
+		set(${CMAKE_CXX_FLAGS} "${CMAKE_CXX_FLAGS} -mfpmath=sse -mmmx -msse -msse2 -msse3")
+		set(${CMAKE_C_FLAGS} "${CMAKE_C_FLAGS} -mfpmath=sse -mmmx -msse -msse2 -msse3")
+	elseif ( ${CMAKE_SYSTEM_PROCESSOR} MATCHES x86_64 == arm )
+		target_compile_options(SatKiosk3DLib PRIVATE -mfpu=neon -mfloat-abi=softfp)
+		set(${CMAKE_CXX_FLAGS} "${CMAKE_CXX_FLAGS} -mfpu=neon -mfloat-abi=softfp")
+		set(${CMAKE_C_FLAGS} "${CMAKE_C_FLAGS} -mfpu=neon -mfloat-abi=softfp")
+	endif ()
+endif(WIN32)
 
 add_executable(SatKiosk3D ${TEST_DIR}/test.cc)
 target_link_libraries(SatKiosk3D PUBLIC SatKiosk3DLib)

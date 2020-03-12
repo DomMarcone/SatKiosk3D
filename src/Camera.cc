@@ -3,6 +3,8 @@
 #include "Camera.h"
 
 #include <linmath.h>
+#include <intrin_linmath.h>
+
 #include <cmath>
 
 Camera::Camera(){
@@ -37,11 +39,11 @@ void Camera::update(){
 	
 	mat4x4_translate(trans, -position[0], -position[1], -position[2]);
 	
-	mat4x4_mul(view, rot, trans);
+	intrin_mat4x4_mul(view, rot, trans);
 	
 	mat4x4_perspective(projection, 3.14159f/3.f, aspect, 100.f, MAX_DRAW_DISTANCE);
 	
-	mat4x4_mul(viewProjection, projection, view);
+	intrin_mat4x4_mul(viewProjection, projection, view);
 }
 
 void Camera::setPosition(float x, float y, float z, bool update_transform){
