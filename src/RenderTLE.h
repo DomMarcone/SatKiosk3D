@@ -26,7 +26,7 @@
 
 #define TLE_RING_VERTS 64
 
-#define MAX_TLE_INSTANCES 128
+#define MAX_TLE_INSTANCES 256
 #define MAX_TLE_ELEMENTS 4096
 
 #ifndef M_PI
