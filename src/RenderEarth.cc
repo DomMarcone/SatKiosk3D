@@ -6,8 +6,9 @@
 #include <GLFW/glfw3.h>
 
 #include <Format3D.h>
-#include <LoadText.h>
-#include <PlyToFormat3D.h>
+//#include <LoadText.h>
+//#include <PlyToFormat3D.h>
+#include <LoadFormat3D.h>
 #include <Image.h>
 #include <LoadImagePNG.h>
 #include <Camera.h>
@@ -36,12 +37,15 @@ void RenderEarth::init(){
 	std::string plyText;
 
 	et.setRotationOffset(-3.1415928);
-	
+	/*
 	plyText = LoadText("res/models/earth.ply");
 	
 	earth_model = PlyToFormat3D(plyText);
 	
 	plyText.clear();
+	*/
+	
+	earth_model = LoadFormat3D("res/models/earth.ply");
 	
 	std::cout << "earth model loaded." << std::endl;
 	

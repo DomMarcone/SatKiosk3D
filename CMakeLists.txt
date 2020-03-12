@@ -86,6 +86,18 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/LoadTLE.h
 	${SRC_DIR}/LoadTLE.cc
 	${SRC_DIR}/intrin_linmath.h
+	${SRC_DIR}/Bin.h
+	${SRC_DIR}/Bin.cc
+	${SRC_DIR}/LoadBin.h
+	${SRC_DIR}/LoadBin.cc
+	${SRC_DIR}/SaveBin.h
+	${SRC_DIR}/SaveBin.cc
+	${SRC_DIR}/Format3DToBin.h
+	${SRC_DIR}/Format3DToBin.cc
+	${SRC_DIR}/BinToFormat3D.h
+	${SRC_DIR}/BinToFormat3D.cc
+	${SRC_DIR}/LoadFormat3D.h
+	${SRC_DIR}/LoadFormat3D.cc
 )
 
 target_link_libraries(SatKiosk3DLib PUBLIC ${PNG_LIBRARY})

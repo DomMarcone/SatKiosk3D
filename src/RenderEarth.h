@@ -6,8 +6,9 @@
 #include <GLFW/glfw3.h>
 
 #include <Format3D.h>
-#include <LoadText.h>
-#include <PlyToFormat3D.h>
+//#include <LoadText.h>
+//#include <PlyToFormat3D.h>
+#include <LoadFormat3D.h>
 #include <Image.h>
 #include <LoadImagePNG.h>
 #include <Camera.h>
