@@ -7,9 +7,10 @@
 
 #include <iostream>
 #include <string>
+#include <chrono>
 #include <cmath>
 #include <cstring>
-#include <chrono>
+#include <ctime>
 
 #include <Format3D.h>
 #include <LoadText.h>
@@ -159,6 +160,20 @@ int main(int argc, char **argv){
 	
 	bool show_gl_info = false;
 	bool multisample = false;
+	
+	double hour_offset;
+	
+	{
+		time_t raw_time, gm_time;
+		struct tm *raw_tm;
+		
+		time(&raw_time);
+		
+		raw_tm = gmtime(&raw_time);
+		gm_time = mktime(raw_tm);
+		
+		hour_offset = difftime(gm_time, raw_time)/(60*60);
+	}
 	
 	if(!glfwInit()){
 		std::cout << "Error initializing glfw." << std::endl;
@@ -397,6 +412,7 @@ int main(int argc, char **argv){
 				std::chrono::system_clock::now();
 			
 			now += std::chrono::seconds(GraphicsState.time_offset);
+			now += std::chrono::hours((int)hour_offset);
 			
 			re->setTime(now);
 		
@@ -414,13 +430,9 @@ int main(int argc, char **argv){
 	}
 	
 	delete rs;
-	std::cout << "deleted RenderSun." << std::endl;
 	delete rt;
-	std::cout << "deleted RenderTLE." << std::endl;
 	delete re;
-	std::cout << "deleted RenderEarth." << std::endl;
 	delete GraphicsState.camera;
-	std::cout << "deleted Camera." << std::endl;
 	
 	glFlush();
 	

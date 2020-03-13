@@ -83,9 +83,6 @@ void RenderSun::setCamera(Camera *cam){
 
 void RenderSun::setDirection(vec3 *direction){
 	sunDirection = direction;
-	/**sunDirection[0] = 0.f;
-	*sunDirection[1] = 0.f;
-	*sunDirection[2] = 0.f;*/
 }
 
 void RenderSun::draw(){
@@ -111,7 +108,9 @@ void RenderSun::draw(){
 	glBindTexture(GL_TEXTURE_2D, sun_texture);
 	glUniform1i(uTex, 0);
 	
+	glDisable(GL_DEPTH_TEST);
+	
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, elements);
 	
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
 }

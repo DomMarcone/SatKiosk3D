@@ -34,7 +34,7 @@ void RenderEarth::init(){
 	Image earth_image_diff, earth_image_night;
 	std::string plyText;
 
-	et.setRotationOffset(3.14159f/2.f);
+	et.setRotationOffset(3.14159f);
 	
 	earth_model = LoadFormat3D("res/models/earth.ply");
 	
