@@ -18,7 +18,7 @@
 
 #include <linmath.h>
 
-#include <ctime>
+#include <chrono>
 #include <string>
 
 class RenderEarth{
@@ -44,7 +44,7 @@ public :
 	~RenderEarth();
 	
 	void setCamera(Camera *cam);
-	void setTime(time_t t);
+	void setTime(std::chrono::system_clock::time_point ct);
 	
 	vec3 *getSunDirection();
 	

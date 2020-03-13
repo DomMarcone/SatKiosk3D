@@ -6,10 +6,12 @@
 #include <intrin_linmath.h>
 
 #include <ctime>
+#include <chrono>
 #include <iostream>
 
 EarthTransform::EarthTransform(){
-	struct tm reference_equinox, reference_zero;
+	struct tm reference_equinox, reference_zero, *temp;
+	time_t equinox, zero;
 	
 	reference_equinox.tm_sec   = 0;
 	reference_equinox.tm_min   = MARCH_EQUINOX_MINUTE;
@@ -28,10 +30,16 @@ EarthTransform::EarthTransform(){
 	reference_zero.tm_year = MARCH_EQUINOX_YEAR-1900;
 	reference_zero.tm_isdst = 0;
 	
+	//Convert to local time
+	equinox = mktime(&reference_equinox);
+	temp = localtime(&equinox);
+	equinox = mktime(temp);
+	march_equinox = std::chrono::system_clock::from_time_t(equinox);
 	
-	march_equinox = mktime(&reference_equinox);
-	day_zero = mktime(&reference_zero);
-	day_zero_offset = difftime(march_equinox, day_zero);
+	zero = mktime(&reference_zero);	
+	temp = localtime(&zero);
+	zero = mktime(temp);
+	day_zero = std::chrono::system_clock::from_time_t(zero);
 	
 	rotation_offset = 0.f;
 	
@@ -44,7 +52,7 @@ EarthTransform::~EarthTransform(){
 	//Nothing to do yet
 }
 
-void EarthTransform::setCurrentTime(time_t ct){
+void EarthTransform::setCurrentTime(std::chrono::system_clock::time_point ct){
 	current_time = ct;
 }
 
@@ -53,11 +61,10 @@ void EarthTransform::setRotationOffset(float r){
 }
 
 mat4x4 &EarthTransform::getTransform(){
+	std::chrono::duration<double> elapsed_seconds = current_time - day_zero;
+	
 	double earth_rotation = fmod(
-		difftime(
-			current_time, 
-			day_zero
-		)/* + day_zero_offset*/, 
+		elapsed_seconds.count(), 
 		EARTH_SIDEREAL_DAY
 	)/EARTH_SIDEREAL_DAY;
 	
@@ -76,11 +83,9 @@ mat4x4 &EarthTransform::getTransform(){
 }
 
 vec3 *EarthTransform::getSunDirection(){
+	std::chrono::duration<double> elapsed_seconds = current_time - march_equinox;
 	double earth_orbital_postion = fmod(
-		difftime(
-			current_time,
-			march_equinox
-		), 
+		elapsed_seconds.count(), 
 		EARTH_SIDEREAL_PERIOD_SECONDS
 	)/EARTH_SIDEREAL_PERIOD_SECONDS;
 		

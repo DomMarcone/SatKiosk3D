@@ -9,6 +9,7 @@
 #include <string>
 #include <cmath>
 #include <cstring>
+#include <chrono>
 
 #include <Format3D.h>
 #include <LoadText.h>
@@ -392,30 +393,14 @@ int main(int argc, char **argv){
 		GraphicsState.camera->faceTarget(target);
 		
 		{
-			static int sync_tick = -1;
-			static time_t last_time = 0;
+			std::chrono::system_clock::time_point now = 
+				std::chrono::system_clock::now();
 			
-			float seconds = (float)((clock()-sync_tick)%CLOCKS_PER_SEC);
-			time_t current_time = -1;
-			struct tm *tm_current_time;
-			time(&current_time);
+			now += std::chrono::seconds(GraphicsState.time_offset);
 			
-			if(current_time != last_time)
-				sync_tick = clock();
-			
-			last_time = current_time;
-			
-			seconds /= CLOCKS_PER_SEC;
-			
-			tm_current_time = gmtime(&current_time);
-			
-			tm_current_time->tm_sec += GraphicsState.time_offset;
-			
-			current_time = mktime(tm_current_time);
-			
-			re->setTime(current_time);
+			re->setTime(now);
 		
-			rt->computePositions(current_time, seconds);
+			rt->computePositions(now);
 		}
 		
 		rs->setDirection(re->getSunDirection());

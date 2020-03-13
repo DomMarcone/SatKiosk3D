@@ -5,6 +5,8 @@
 #include <linmath.h>
 
 #include <ctime>
+#include <chrono>
+#include <iostream>
 
 #define EARTH_SIDEREAL_PERIOD_YEARS   1.0
 #define EARTH_SIDEREAL_PERIOD_DAYS    365.25636
@@ -32,10 +34,9 @@ private :
 
 	float radius_poles, radius_equator;
 	
-	time_t march_equinox;
-	time_t day_zero;
-	double day_zero_offset;
-	time_t current_time;
+	std::chrono::system_clock::time_point march_equinox;
+	std::chrono::system_clock::time_point day_zero;
+	std::chrono::system_clock::time_point current_time;
 	
 	float tilt;
 	
@@ -49,7 +50,7 @@ public :
 	EarthTransform();
 	~EarthTransform();
 	
-	void setCurrentTime(time_t ct);
+	void setCurrentTime(std::chrono::system_clock::time_point ct);
 	
 	void setRotationOffset(float r);
 	

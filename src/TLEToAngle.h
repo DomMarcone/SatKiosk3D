@@ -11,8 +11,8 @@
 
 #include <iostream>
 #include <cmath>
-#include <ctime>
+#include <chrono>
 
-float TLEToAngle(tle_t *t, time_t current_time, float seconds);
+float TLEToAngle(tle_t *t, std::chrono::system_clock::time_point current_time);
 
 #endif //_TLE_TO_ANGLE_H

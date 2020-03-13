@@ -21,7 +21,7 @@
 #include <vector>
 #include <thread>
 #include <utility>
-#include <ctime>
+#include <chrono>
 #include <thread>
 
 #define TLE_RING_VERTS 64
@@ -67,7 +67,7 @@ public :
 	
 	~RenderTLE();
 	
-	void computePositions(time_t t, float seconds);
+	void computePositions(std::chrono::system_clock::time_point current_time);
 	
 	void setCamera(Camera *cam);
 	bool loadFile(std::string filename);

@@ -136,17 +136,17 @@ bool RenderTLE::loadFile(std::string filename){
 	return true;
 }
 
-void _computePositionsFillThread(float *tle_angle, std::vector<tle_t> &tle_v, time_t t, float seconds, int stride, int offset){
+void _computePositionsFillThread(float *tle_angle, std::vector<tle_t> &tle_v, std::chrono::system_clock::time_point current_time, int stride, int offset){
 	for(int i=offset; i<tle_v.size(); i+=stride){
-		tle_angle[i] = TLEToAngle(&tle_v[i], t, seconds);
+		tle_angle[i] = TLEToAngle(&tle_v[i], current_time);
 	}
 }
 
-void RenderTLE::computePositions(time_t t, float seconds){
+void RenderTLE::computePositions(std::chrono::system_clock::time_point current_time){
 	std::size_t thread_count = std::thread::hardware_concurrency();
 	/*//Single threaded
 	for(int i=0; i<tle_v.size(); ++i){
-		tle_angle[i] = TLEToAngle(&tle_v[i], t);
+		tle_angle[i] = TLEToAngle(&tle_v[i], current_time);
 	}
 	*/
 	
@@ -157,11 +157,11 @@ void RenderTLE::computePositions(time_t t, float seconds){
 			_computePositionsFillThread,
 			tle_angle,
 			std::ref(tle_v),
-			t, seconds, 
+			current_time, 
 			thread_count, i
 		);
 		
-	_computePositionsFillThread(tle_angle, tle_v, t, seconds, thread_count, thread_count-1);
+	_computePositionsFillThread(tle_angle, tle_v, current_time, thread_count, thread_count-1);
 	
 	for(int i=0; i<thread_count-1; ++i)
 		threads[i].join();

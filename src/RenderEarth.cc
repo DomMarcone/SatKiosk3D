@@ -18,7 +18,7 @@
 
 #include <linmath.h>
 
-#include <ctime>
+#include <chrono>
 #include <string>
 
 RenderEarth::RenderEarth(Camera *cam){
@@ -34,7 +34,7 @@ void RenderEarth::init(){
 	Image earth_image_diff, earth_image_night;
 	std::string plyText;
 
-	et.setRotationOffset(-3.1415928);
+	et.setRotationOffset(3.14159f/2.f);
 	
 	earth_model = LoadFormat3D("res/models/earth.ply");
 	
@@ -74,8 +74,8 @@ void RenderEarth::setCamera(Camera *cam){
 	camera = cam;
 }
 
-void RenderEarth::setTime(time_t t){
-	et.setCurrentTime(t);
+void RenderEarth::setTime(std::chrono::system_clock::time_point ct){
+	et.setCurrentTime(ct);
 	sunDirection = et.getSunDirection();
 }
 

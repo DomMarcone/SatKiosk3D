@@ -11,6 +11,8 @@
 #include <fstream>
 #include <ctime>
 #include <cmath>
+#include <chrono>
+#include <string>
 
 #ifndef M_PI
 #define M_PI 3.14159265359

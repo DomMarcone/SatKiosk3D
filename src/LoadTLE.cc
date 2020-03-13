@@ -11,6 +11,8 @@
 #include <fstream>
 #include <ctime>
 #include <cmath>
+#include <chrono>
+#include <string>
 
 #define PHYSICS_GM 3.9857605760e5
 
@@ -36,7 +38,8 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 		int year, current_year;
 		float period, day;
 		struct tm time_tm, *current_tm;
-		time_t current_time;
+		time_t current_time, epoch;
+		std::string time_string;
 		
 		temp.name = (char*)line0.c_str();
 		
@@ -95,8 +98,10 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 		time_tm.tm_wday = 0;
 		time_tm.tm_isdst = 0;
 		
-		temp.epoch = mktime(&time_tm);
+		epoch = mktime(&time_tm);
 		
+		temp.epoch = std::chrono::system_clock::from_time_t(epoch);
+			
 		tleVector.push_back(temp);
 	} 
 	
