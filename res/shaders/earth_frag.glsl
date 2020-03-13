@@ -13,7 +13,8 @@ in vec3 vNormal;
 out vec4 fragColor;
 
 void main() {
-	float dayAmount = max(dot(vNormal, uSunDirection), 0.0);
+	vec3 norm = normalize(vNormal);
+	float dayAmount = max(dot(norm, uSunDirection), 0.0);
         dayAmount = min(dayAmount*8.0, 1.0);
 	
 	vec4 nightLights = vec4(1.0, 0.7, 0.2, 1.0);

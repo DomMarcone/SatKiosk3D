@@ -79,6 +79,8 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/RenderSun.cc
 	${SRC_DIR}/RenderTLE.h
 	${SRC_DIR}/RenderTLE.cc
+	${SRC_DIR}/RenderMoon.h
+	${SRC_DIR}/RenderMoon.cc
 	${SRC_DIR}/TLEToMat4x4.h
 	${SRC_DIR}/TLEToMat4x4.cc
 	${SRC_DIR}/TLEToAngle.h

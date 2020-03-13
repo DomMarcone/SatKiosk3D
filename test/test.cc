@@ -28,6 +28,7 @@
 #include <RenderEarth.h>
 #include <RenderTLE.h>
 #include <RenderSun.h>
+#include <RenderMoon.h>
 
 #define DEFAULT_WINDOW_HEIGHT 540
 #define DEFAULT_WINDOW_WIDTH 960
@@ -58,18 +59,39 @@ struct {
 	float scaleMouse = 0.25f;
 	float scrollAmount = 1000.f;
 	
-	int time_offset = 0;
-	int time_increment = 60;
+	float time_offset = 0;
+	float time_increment = 60;
 	std::string increment_s = "minutes";
+	float time_flow = 1.f;
+	int speed = 0;
 } GraphicsState;
+
+void DisplayTime(int offset){
+	struct tm *ptm;
+	time_t now, off;
+	
+	time(&now);
+	
+	ptm = localtime(&now);
+	
+	ptm->tm_sec += offset;
+	
+	off = mktime(ptm);
+	ptm = localtime(&off);
+	
+	std::cout << "Time : " << 1 + ptm->tm_mon << "/" << ptm->tm_mday << "/" << 1900 + ptm->tm_year;
+	std::cout << " " << ptm->tm_hour << ":" << ptm->tm_min << ":" << ptm->tm_sec << std::endl;
+}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+		return;//No need to continue through each if block
 	}
 	
 	if( key == GLFW_KEY_A && action == GLFW_PRESS){
 		std::cout << "a key pressed." << std::endl;
+		return;
 	}
 	
 	if(key == GLFW_KEY_LEFT && action == GLFW_PRESS){
@@ -77,6 +99,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		std::cout << "Time offset = " << 
 			GraphicsState.time_offset/GraphicsState.time_increment <<
 			" " << GraphicsState.increment_s << std::endl;
+		DisplayTime(GraphicsState.time_offset);
+		return;
 	}
 	
 	if(key == GLFW_KEY_RIGHT && action == GLFW_PRESS){
@@ -84,36 +108,67 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		std::cout << "Time offset = " << 
 			GraphicsState.time_offset/GraphicsState.time_increment << 
 			" " << GraphicsState.increment_s << std::endl;
+		DisplayTime(GraphicsState.time_offset);
+		return;
+	}
+	
+	if(key == GLFW_KEY_R && action == GLFW_PRESS){
+		GraphicsState.time_offset -= GraphicsState.time_offset;
+		std::cout << "Time offset has been reset." << std::endl;
+		return;
 	}
 	
 	if(key == GLFW_KEY_S && action == GLFW_PRESS){
 		GraphicsState.time_increment = 1;
 		GraphicsState.increment_s = "seconds";
 		std::cout << "Time increment is seconds." << std::endl;
+		return;
 	}
 	
 	if(key == GLFW_KEY_M && action == GLFW_PRESS){
 		GraphicsState.time_increment = 60;
 		GraphicsState.increment_s = "minutes";
 		std::cout << "Time increment is minutes." << std::endl;
+		return;
 	}
 	
 	if(key == GLFW_KEY_H && action == GLFW_PRESS){
 		GraphicsState.time_increment = 60*60;
 		GraphicsState.increment_s = "hours";
 		std::cout << "Time increment is hours." << std::endl;
+		return;
 	}
 	
 	if(key == GLFW_KEY_D && action == GLFW_PRESS){
 		GraphicsState.time_increment = 24*60*60;
 		GraphicsState.increment_s = "days";
 		std::cout << "Time increment is days." << std::endl;
+		return;
 	}
 	
 	if(key == GLFW_KEY_W && action == GLFW_PRESS){
 		GraphicsState.time_increment = 7*24*60*60;
 		GraphicsState.increment_s = "weeks";
 		std::cout << "Time increment is weeks." << std::endl;
+		return;
+	}
+	
+	if(key == GLFW_KEY_COMMA && action == GLFW_PRESS){
+		GraphicsState.speed--;
+		if(GraphicsState.speed<0)
+			GraphicsState.time_flow = -abs(GraphicsState.time_flow);
+		std::cout << "Time multiplier : *" << 
+			pow(2.0, abs(GraphicsState.speed)) * GraphicsState.time_flow << std::endl;
+		return;
+	}
+	
+	if(key == GLFW_KEY_PERIOD && action == GLFW_PRESS){
+		GraphicsState.speed++;
+		if(GraphicsState.speed>=0)
+			GraphicsState.time_flow = abs(GraphicsState.time_flow);
+		std::cout << "Time multiplier : *" << 
+			pow(2.0, abs(GraphicsState.speed)) * GraphicsState.time_flow << std::endl;
+		return;
 	}
 }
 
@@ -155,6 +210,7 @@ int main(int argc, char **argv){
 	RenderEarth *re;
 	RenderTLE *rt;
 	RenderSun *rs;
+	RenderMoon *rm;
 	
 	std::string tle_url = TLE_URL, tle_file = TLE_FILE;
 	
@@ -331,6 +387,7 @@ int main(int argc, char **argv){
 	re = new RenderEarth(GraphicsState.camera);
 	rt = new RenderTLE(GraphicsState.camera);
 	rs = new RenderSun(GraphicsState.camera);
+	rm = new RenderMoon(GraphicsState.camera);
 	
 	if(!rt->loadFile( tle_file )){
 		std::cout << "Attempting to download TLE Data." << std::endl;
@@ -411,17 +468,24 @@ int main(int argc, char **argv){
 			std::chrono::system_clock::time_point now = 
 				std::chrono::system_clock::now();
 			
-			now += std::chrono::seconds(GraphicsState.time_offset);
-			now += std::chrono::hours((int)hour_offset);
+			GraphicsState.time_offset += (pow(2.0, abs(GraphicsState.speed))*GraphicsState.time_flow)/60.f;
+			
+			now += std::chrono::milliseconds((int)(fmod(GraphicsState.time_offset,1.0)*1000.f));
+			now += std::chrono::seconds((int)(fmod(GraphicsState.time_offset,60.0)));
+			now += std::chrono::minutes((int)(fmod(GraphicsState.time_offset,3600.0)/60.0));
+			now += std::chrono::hours((int)(GraphicsState.time_offset/3600.0 + hour_offset));
 			
 			re->setTime(now);
+			rm->setTime(now);
 		
 			rt->computePositions(now);
 		}
 		
 		rs->setDirection(re->getSunDirection());
+		rm->setSunDirection(re->getSunDirection());
 		
 		rs->draw();
+		rm->draw();
 		re->draw();
 		rt->draw();
 		
