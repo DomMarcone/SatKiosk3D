@@ -34,7 +34,7 @@ void TLEToMat4x4(mat4x4 m, tle_t *t){
 	
 	mat4x4_translate(translate, 0.f, 0.f, foci);
 	
-	intrin_mat4x4_rotate_Z(earth_tilt, m, EARTH_TILT/2.f);	
+	intrin_mat4x4_rotate_X(earth_tilt, m, -EARTH_TILT);	
 	intrin_mat4x4_rotate_Y(right_ascending_node, earth_tilt, -t->right_ascension - 3.14159265f/2.f);
 	intrin_mat4x4_rotate_X(inclination, right_ascending_node, -t->inclination);
 	intrin_mat4x4_rotate_Y(periapsis, inclination, -t->argument_of_periapsis);

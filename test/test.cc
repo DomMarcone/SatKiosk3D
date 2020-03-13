@@ -153,6 +153,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		return;
 	}
 	
+	if(key == GLFW_KEY_Y && action == GLFW_PRESS){
+		GraphicsState.time_increment = 24*60*60*365.25;
+		GraphicsState.increment_s = "years";
+		std::cout << "Time increment is years." << std::endl;
+		return;
+	}
+	
 	if(key == GLFW_KEY_COMMA && action == GLFW_PRESS){
 		GraphicsState.speed--;
 		if(GraphicsState.speed<0)
@@ -229,6 +236,7 @@ int main(int argc, char **argv){
 		gm_time = mktime(raw_tm);
 		
 		hour_offset = difftime(gm_time, raw_time)/(60*60);
+		//if(raw_tm->tm_isdst)hour_offset += 1.0;
 	}
 	
 	if(!glfwInit()){
