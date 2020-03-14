@@ -15,16 +15,15 @@
 //Requires further testing and debugging.
 float TLEToAngle(tle_t *t, std::chrono::system_clock::time_point current_time){
 	float angle;
-	double period = 86400.0/t->mean_motion;
+	double period = 86400.0/t->mean_motion, ma_seconds = (t->mean_anomaly/360.0)/period ;
 	std::chrono::duration<double> elapsed_seconds = current_time - t->epoch;
 	double angular_position = fmod(
-		elapsed_seconds.count(), 
+		elapsed_seconds.count() - ma_seconds, 
 		period
 	)/period;
 	
 	angular_position *= 3.14159265*2.0;
-	angular_position += t->mean_anomaly;
-	angular_position -= 3.14159256;
+	angular_position -= 3.14159256/2.0;
 	
 	angular_position += t->eccentricity * -cos(angular_position);
 	

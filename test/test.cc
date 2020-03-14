@@ -191,7 +191,7 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods){
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset){
-	GraphicsState.camAttrib.gps.altitude -= yoffset * GraphicsState.scrollAmount;
+	GraphicsState.camAttrib.gps.altitude -= (yoffset * GraphicsState.scrollAmount) * log(GraphicsState.camAttrib.gps.altitude/500.f);
 	
 	if(GraphicsState.camAttrib.gps.altitude < 0.f)
 		GraphicsState.camAttrib.gps.altitude = 0.f;
@@ -428,7 +428,7 @@ int main(int argc, char **argv){
 				
 				for(int i=0; i<2; ++i){
 					delta[i] = (float)mousePosition[i] - clickPosition[i];
-					delta[i] *= GraphicsState.scaleMouse;
+					delta[i] *= GraphicsState.scaleMouse / log(GraphicsState.camAttrib.gps.altitude/500.0) ;
 				}
 				
 				delta[0] += gps_click_position.longitude;
@@ -476,7 +476,8 @@ int main(int argc, char **argv){
 			std::chrono::system_clock::time_point now = 
 				std::chrono::system_clock::now();
 			
-			GraphicsState.time_offset += (pow(2.0, abs(GraphicsState.speed))*GraphicsState.time_flow)/60.f;
+			if(GraphicsState.speed)
+				GraphicsState.time_offset += (pow(2.0, abs(GraphicsState.speed))*GraphicsState.time_flow)/60.f;
 			
 			now += std::chrono::milliseconds((int)(fmod(GraphicsState.time_offset,1.0)*1000.f));
 			now += std::chrono::seconds((int)(fmod(GraphicsState.time_offset,60.0)));
