@@ -528,3 +528,9 @@ Format3D *PlyToFormat3D(std::string &plyText){
 	//end = clock();	std::cout << "_generateFormat3D() : " << (end-start) << "ms" << std::endl; start = end;
 	return result;
 }
+
+Format3D *PlyToFormat3D(char *plyText){
+	std::string plyTextString = plyText;
+	return PlyToFormat3D(plyTextString);
+}
+

@@ -44,11 +44,10 @@ Format3D *LoadFormat3D(std::string filename){
 		bin = LoadBin(bakedFilename, false);
 		
 		if(bin==0){
+			std::string plyText = LoadText(filename);
 			std::cout << "Creating baked file " << bakedFilename << std::endl;
 			
-			result = PlyToFormat3D(
-				LoadText(filename)
-			);
+			result = PlyToFormat3D( plyText	);
 			
 			bin = Format3DToBin(result);
 			
