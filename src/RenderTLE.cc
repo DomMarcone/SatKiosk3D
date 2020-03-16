@@ -172,6 +172,10 @@ void RenderTLE::draw(bool draw_rings, bool draw_sats){
 	
 	tle_t tle;
 	
+	float ring_visiblity = 1.f/tle_v.size();
+	if(ring_visiblity < 0.06125f)
+		ring_visiblity = 0.06125f;
+	
 	if(!draw_rings && !draw_sats)
 		return;
 
@@ -202,7 +206,7 @@ void RenderTLE::draw(bool draw_rings, bool draw_sats){
 			glEnableVertexAttribArray(aPos);
 			glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 			
-			glUniform4f(uColor, 0.8f, 1.0f, 0.9f, 0.06125);	
+			glUniform4f(uColor, 0.8f, 1.0f, 0.9f, ring_visiblity);	
 			
 			glDrawArraysInstanced(GL_LINE_LOOP, 0, TLE_RING_VERTS, count);
 			
