@@ -12,5 +12,6 @@
 
 
 Format3D *PlyToFormat3D(std::string &plyText);
+Format3D *PlyToFormat3D(char *plyText);
 
 #endif //_PLY_TO_FORMAT_3D_H
