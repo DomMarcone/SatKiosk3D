@@ -167,10 +167,13 @@ void RenderTLE::computePositions(std::chrono::system_clock::time_point current_t
 		threads[i].join();
 }
 
-void RenderTLE::draw(){
+void RenderTLE::draw(bool draw_rings, bool draw_sats){
 	mat4x4 orbit;
 	
 	tle_t tle;
+	
+	if(!draw_rings && !draw_sats)
+		return;
 
 	glUseProgram(ring.program);
 	glUniformMatrix4fv(
@@ -185,44 +188,48 @@ void RenderTLE::draw(){
 		
 		if(count > MAX_TLE_INSTANCES)
 			count = MAX_TLE_INSTANCES;
+		
+		if(draw_rings){
+			glUseProgram(ring.program);
 
-		glUseProgram(ring.program);
+			glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
+			
+			glUniformBlockBinding(ring.program, 2, uModelBuffer);
+			glBindBufferRange(GL_UNIFORM_BUFFER, 2, uModelBuffer, i * sizeof(mat4x4), count * sizeof(mat4x4) ); 
+			
+			glBindBuffer(GL_ARRAY_BUFFER, vRingBuffer);
+			
+			glEnableVertexAttribArray(aPos);
+			glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+			
+			glUniform4f(uColor, 0.8f, 1.0f, 0.9f, 0.06125);	
+			
+			glDrawArraysInstanced(GL_LINE_LOOP, 0, TLE_RING_VERTS, count);
+			
+			glDisableVertexAttribArray(aPos);
+		}
+		
+		if(draw_sats){
+			glUseProgram(sat.program);
+			
+			glUniformMatrix4fv(
+				uViewProjection, 
+				1, 
+				GL_FALSE, 
+				(const GLfloat*) camera->getTransform()
+			);
+			
+			glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
+			
+			glUniformBlockBinding(sat.program, 2, uModelBuffer);
+			glBindBufferRange(GL_UNIFORM_BUFFER, 2, uModelBuffer, i * sizeof(mat4x4), count * sizeof(mat4x4) ); 
+			
+			glUniform1fv(sat.uAngle, count, &tle_angle[i]);
 
-		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
+			glUniform4f(uColor, 1.f, 1.f, 1.f, 0.5f);	
+			
+			glDrawArrays(GL_POINTS, 0, count);
+		}
 		
-		glUniformBlockBinding(ring.program, 2, uModelBuffer);
-		glBindBufferRange(GL_UNIFORM_BUFFER, 2, uModelBuffer, i * sizeof(mat4x4), count * sizeof(mat4x4) ); 
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vRingBuffer);
-		
-		glEnableVertexAttribArray(aPos);
-		glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-		
-		glUniform4f(uColor, 0.8f, 1.0f, 0.9f, 0.125f);	
-		
-		glDrawArraysInstanced(GL_LINE_LOOP, 0, TLE_RING_VERTS, count);
-		
-		//Render individual satellites
-		glUseProgram(sat.program);
-		
-		glDisableVertexAttribArray(aPos);
-		
-		glUniformMatrix4fv(
-			uViewProjection, 
-			1, 
-			GL_FALSE, 
-			(const GLfloat*) camera->getTransform()
-		);
-		
-		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
-		
-		glUniformBlockBinding(sat.program, 2, uModelBuffer);
-		glBindBufferRange(GL_UNIFORM_BUFFER, 2, uModelBuffer, i * sizeof(mat4x4), count * sizeof(mat4x4) ); 
-		
-		glUniform1fv(sat.uAngle, count, &tle_angle[i]);
-
-		glUniform4f(uColor, 1.f, 1.f, 1.f, 0.5f);	
-		
-		glDrawArrays(GL_POINTS, 0, count);
 	}
 }

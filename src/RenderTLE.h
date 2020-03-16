@@ -72,7 +72,7 @@ public :
 	void setCamera(Camera *cam);
 	bool loadFile(std::string filename);
 	
-	void draw();
+	void draw(bool draw_rings=true, bool draw_sats=true);
 	
 };
 

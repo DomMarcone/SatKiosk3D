@@ -64,6 +64,9 @@ struct {
 	std::string increment_s = "minutes";
 	float time_flow = 1.f;
 	int speed = 0;
+	
+	bool draw_rings = true;
+	bool draw_sats = true;
 } GraphicsState;
 
 void DisplayTime(int offset){
@@ -177,6 +180,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			pow(2.0, abs(GraphicsState.speed)) * GraphicsState.time_flow << std::endl;
 		return;
 	}
+	
+	if(key == GLFW_KEY_1 && action == GLFW_PRESS){
+		GraphicsState.draw_rings = !GraphicsState.draw_rings;
+		std::cout << "Show rings : " << (GraphicsState.draw_rings ? "true" : "false") << std::endl;
+		return;
+	}
+
+	if(key == GLFW_KEY_2 && action == GLFW_PRESS){
+		GraphicsState.draw_sats = !GraphicsState.draw_sats;
+		std::cout << "Show sats : " << (GraphicsState.draw_sats ? "true" : "false") << std::endl;
+		return;
+	}
 }
 
 void mouse_callback(GLFWwindow *window, int button, int action, int mods){
@@ -193,8 +208,8 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods){
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset){
 	GraphicsState.camAttrib.gps.altitude -= (yoffset * GraphicsState.scrollAmount) * log(GraphicsState.camAttrib.gps.altitude/500.f);
 	
-	if(GraphicsState.camAttrib.gps.altitude < 0.f)
-		GraphicsState.camAttrib.gps.altitude = 0.f;
+	if(GraphicsState.camAttrib.gps.altitude < 100.f)
+		GraphicsState.camAttrib.gps.altitude = 100.f;
 }
 
 void resize_callback(GLFWwindow *window, int width, int height){
@@ -496,7 +511,7 @@ int main(int argc, char **argv){
 		rs->draw();
 		rm->draw();
 		re->draw();
-		rt->draw();
+		rt->draw(GraphicsState.draw_rings, GraphicsState.draw_sats);
 		
 		glfwSwapBuffers(GraphicsState.window);
         glfwPollEvents();
