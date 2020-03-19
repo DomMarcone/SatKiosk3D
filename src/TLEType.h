@@ -12,11 +12,14 @@ typedef struct tle_t{
 	float eccentricity;
 	float argument_of_periapsis;
 	float mean_motion;
+	float mean_motion2;
+	float mean_motion3;
 	float mean_anomaly;
+	float bstar;
 	std::chrono::system_clock::time_point epoch;
 	
 	//Computed
-	float radius;
+	//float radius;//TODO : Remove
 } tle_t;
 
 #endif //_TLE_TYPE_H

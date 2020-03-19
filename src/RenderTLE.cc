@@ -39,7 +39,7 @@ void RenderTLE::init(){
 	
 	glGenBuffers(1, &uModelBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, MAX_TLE_ELEMENTS * sizeof(mat4x4), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, MAX_TLE_ELEMENTS * sizeof(mat4x4), NULL, GL_DYNAMIC_DRAW);
 	
 	glGenBuffers(1, &vRingBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vRingBuffer);
@@ -96,9 +96,43 @@ void RenderTLE::setCamera(Camera *cam){
 	camera = cam;
 }
 
-void _fillThread(mat4x4 *tle_m, std::vector<tle_t> &tle_v, int stride, int offset ){
+void _fillThread(mat4x4 *tle_m, std::vector<tle_t> &tle_v, std::chrono::system_clock::time_point current_time, int stride, int offset ){
 	for(int i=offset; i<tle_v.size(); i += stride){
-		TLEToMat4x4(tle_m[i], &tle_v[i]);
+		TLEToMat4x4(tle_m[i], &tle_v[i], current_time);
+	}
+}
+
+void RenderTLE::computeRings(std::chrono::system_clock::time_point current_time, bool all){
+	std::size_t thread_count = std::thread::hardware_concurrency();
+	static int current_update = 0;
+	/* // Single threaded example
+	for(int i=0; i<tle_v.size(); ++i){
+		TLEToMat4x4(tle_model[i], &tle_v[i], current_time);
+	}
+	*/
+	if(all){	
+		std::vector<std::thread> fillThread(thread_count-1);
+		
+		for(int i=0; i<thread_count-1; ++i){
+			fillThread[i] = std::thread(_fillThread, tle_model, std::ref(tle_v), current_time, thread_count, i);
+		}
+		
+		_fillThread(tle_model, tle_v, current_time, thread_count, thread_count-1);
+		
+		for(int i=0; i<thread_count-1; ++i){
+			fillThread[i].join();
+		}
+		
+		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, tle_v.size() * sizeof(mat4x4), tle_model, GL_DYNAMIC_DRAW);
+	} else {
+		if(current_update >= tle_v.size())current_update = 0;
+		TLEToMat4x4(tle_model[current_update], &tle_v[current_update], current_time);
+		
+		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, current_update * sizeof(mat4x4), sizeof(mat4x4), (const void *)tle_model[current_update]);
+		
+		current_update++;
 	}
 }
 
@@ -109,29 +143,6 @@ bool RenderTLE::loadFile(std::string filename){
 	
 	if(tle_v.size() > MAX_TLE_ELEMENTS)
 		tle_v.resize(MAX_TLE_ELEMENTS);
-	
-	std::size_t thread_count = std::thread::hardware_concurrency();
-	
-	/* // Single threaded example
-	for(int i=0; i<tle_v.size(); ++i){
-		TLEToMat4x4(tle_model[i], &tle_v[i]);
-	}
-	*/
-	
-	std::vector<std::thread> fillThread(thread_count-1);
-	
-	for(int i=0; i<thread_count-1; ++i){
-		fillThread[i] = std::thread(_fillThread, tle_model, std::ref(tle_v), thread_count, i);
-	}
-	
-	_fillThread(tle_model, tle_v, thread_count, thread_count-1);
-	
-	for(int i=0; i<thread_count-1; ++i){
-		fillThread[i].join();
-	}
-	
-	glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, tle_v.size() * sizeof(mat4x4), tle_model, GL_STATIC_DRAW);
 	
 	return true;
 }
@@ -175,6 +186,9 @@ void RenderTLE::draw(bool draw_rings, bool draw_sats){
 	float ring_visiblity = 1.f/tle_v.size();
 	if(ring_visiblity < 0.06125f)
 		ring_visiblity = 0.06125f;
+	
+	if(ring_visiblity > 0.5f)
+		ring_visiblity = 0.5f;
 	
 	if(!draw_rings && !draw_sats)
 		return;

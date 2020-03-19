@@ -67,6 +67,7 @@ public :
 	
 	~RenderTLE();
 	
+	void computeRings(std::chrono::system_clock::time_point current_time, bool all=false);
 	void computePositions(std::chrono::system_clock::time_point current_time);
 	
 	void setCamera(Camera *cam);

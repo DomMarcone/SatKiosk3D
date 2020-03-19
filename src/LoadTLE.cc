@@ -49,6 +49,13 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 		temp.argument_of_periapsis = atof( line2.substr(34, 8).c_str() );
 		temp.mean_anomaly = atof( line2.substr(43, 8).c_str() );
 		temp.mean_motion = atof( line2.substr(52, 11).c_str() );
+		temp.mean_motion2 = atof( line1.substr(33, 9).c_str() );
+		temp.mean_motion3 = atof( line1.substr(44, 7).c_str() )/100000.0;
+		temp.bstar = atof( line1.substr(53, 6).c_str() )/100000.0;
+		
+		//Handle exponents
+		temp.mean_motion3 *= pow( 10.0, atof( line1.substr(50, 2).c_str() ) );
+		temp.bstar *= pow( 10.0, atof( line1.substr(59, 2).c_str() ) );
 		
 		year = atoi( line1.substr(18,2).c_str() );
 		day = atof( line1.substr(20,12).c_str() );
@@ -59,6 +66,9 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 		temp.argument_of_periapsis = temp.argument_of_periapsis * 3.14159265f/180.f;
 		temp.mean_anomaly = temp.mean_anomaly * 3.14159265f/180.f;
 		
+		//Convert to minutes
+		temp.mean_motion = (3.14159265*2.0)/((24.0*60.0)/temp.mean_motion);
+		/*
 		//Computed
 		period = 86400.f/temp.mean_motion;
 		
@@ -66,7 +76,7 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 			((period*period) * PHYSICS_GM) /
 			(4.0 * (M_PI * M_PI) )
 		, (1.0/3.0) );
-		
+		*/
 		time(&current_time);
 		current_tm = gmtime(&current_time);
 		

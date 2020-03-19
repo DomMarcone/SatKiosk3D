@@ -70,9 +70,6 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/GPSConvert.h
 	${SRC_DIR}/GPSConvert.cc
 	${SRC_DIR}/GPSTypes.h
-	${SRC_DIR}/FetchTLE.h
-	${SRC_DIR}/FetchTLE.cc
-	${SRC_DIR}/TLEType.h
 	${SRC_DIR}/RenderEarth.h
 	${SRC_DIR}/RenderEarth.cc
 	${SRC_DIR}/RenderSun.h
@@ -81,12 +78,17 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/RenderTLE.cc
 	${SRC_DIR}/RenderMoon.h
 	${SRC_DIR}/RenderMoon.cc
+	${SRC_DIR}/FetchTLE.h
+	${SRC_DIR}/FetchTLE.cc
+	${SRC_DIR}/TLEType.h
 	${SRC_DIR}/TLEToMat4x4.h
 	${SRC_DIR}/TLEToMat4x4.cc
 	${SRC_DIR}/TLEToAngle.h
 	${SRC_DIR}/TLEToAngle.cc
 	${SRC_DIR}/LoadTLE.h
 	${SRC_DIR}/LoadTLE.cc
+	${SRC_DIR}/SGP.h
+	${SRC_DIR}/SGP.cc
 	${SRC_DIR}/intrin_linmath.h
 	${SRC_DIR}/Bin.h
 	${SRC_DIR}/Bin.cc

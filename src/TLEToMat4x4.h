@@ -10,6 +10,6 @@
 
 #define EARTH_TILT 0.4090470572f
 
-void TLEToMat4x4(mat4x4 m, tle_t *t);
+void TLEToMat4x4(mat4x4 m, tle_t *t, std::chrono::system_clock::time_point current_time);
 
 #endif //_TLE_TO_MAT4X4_H
