@@ -3,6 +3,7 @@
 #include "LoadTLE.h"
 
 #include <TLEType.h>
+#include <SGP.h>
 
 #include <iostream>
 #include <vector>
@@ -16,9 +17,10 @@
 
 #define PHYSICS_GM 3.9857605760e5
 
-bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
+bool LoadTLE(std::vector<sgp4_t> &sgpVector, std::string filename){
 	
 	tle_t temp;
+	sgp4_t temps;
 	bool valid;
 	
 	std::string line0, line1, line2;
@@ -68,15 +70,7 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 		
 		//Convert to minutes
 		temp.mean_motion = (3.14159265*2.0)/((24.0*60.0)/temp.mean_motion);
-		/*
-		//Computed
-		period = 86400.f/temp.mean_motion;
 		
-		temp.radius = pow( 
-			((period*period) * PHYSICS_GM) /
-			(4.0 * (M_PI * M_PI) )
-		, (1.0/3.0) );
-		*/
 		time(&current_time);
 		current_tm = gmtime(&current_time);
 		
@@ -111,11 +105,13 @@ bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename){
 		epoch = mktime(&time_tm);
 		
 		temp.epoch = std::chrono::system_clock::from_time_t(epoch);
-			
-		tleVector.push_back(temp);
+		
+		sgp4_solve_init(&temps, &temp);
+		
+		sgpVector.push_back(temps);
 	} 
 	
-	std::cout << "Loaded " << tleVector.size() << " elements." << std::endl;
+	std::cout << "Loaded " << sgpVector.size() << " elements." << std::endl;
 	
 	inFile.close();
 	return true;

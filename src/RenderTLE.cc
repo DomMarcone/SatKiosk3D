@@ -9,8 +9,7 @@
 #include <CompileShader.h>
 #include <LinkShaders.h>
 #include <TLEType.h>
-#include <TLEToMat4x4.h>
-#include <TLEToAngle.h>
+#include <SGPToMat4x4.h>
 #include <LoadText.h>
 #include <LoadTLE.h>
 
@@ -96,38 +95,54 @@ void RenderTLE::setCamera(Camera *cam){
 	camera = cam;
 }
 
-void _fillThread(mat4x4 *tle_m, std::vector<tle_t> &tle_v, std::chrono::system_clock::time_point current_time, int stride, int offset ){
-	for(int i=offset; i<tle_v.size(); i += stride){
-		TLEToMat4x4(tle_m[i], &tle_v[i], current_time);
+bool RenderTLE::loadFile(std::string filename){
+	if(!LoadTLE(sgp_v, filename)){
+		return false;
+	}
+	
+	if(sgp_v.size() > MAX_TLE_ELEMENTS)
+		sgp_v.resize(MAX_TLE_ELEMENTS);
+	
+	return true;
+}
+
+void _fillThread(mat4x4 *tle_m, float *tle_angle, std::vector<sgp4_t> &sgp_v, std::chrono::system_clock::time_point current_time, int stride, int offset ){
+	for(int i=offset; i<sgp_v.size(); i += stride){
+		sgp4_solve_at_time(&sgp_v[i], current_time);
+		SGPToMat4x4(tle_m[i], &sgp_v[i]);
+		tle_angle[i] = -sgp_v[i].uk;
 	}
 }
 
-void RenderTLE::computeRings(std::chrono::system_clock::time_point current_time, bool all){
+void RenderTLE::compute(std::chrono::system_clock::time_point current_time, bool all){
 	std::size_t thread_count = std::thread::hardware_concurrency();
 	static int current_update = 0;
 	/* // Single threaded example
-	for(int i=0; i<tle_v.size(); ++i){
-		TLEToMat4x4(tle_model[i], &tle_v[i], current_time);
+	for(int i=0; i<sgp_v.size(); ++i){
+		sgp4_solve_at_time(&sgp_v[i], current_time);
+		SGPToMat4x4(tle_model[i], &sgp_v[i]);
 	}
 	*/
 	if(all){	
 		std::vector<std::thread> fillThread(thread_count-1);
 		
 		for(int i=0; i<thread_count-1; ++i){
-			fillThread[i] = std::thread(_fillThread, tle_model, std::ref(tle_v), current_time, thread_count, i);
+			fillThread[i] = std::thread(_fillThread, tle_model, tle_angle, std::ref(sgp_v), current_time, thread_count, i);
 		}
 		
-		_fillThread(tle_model, tle_v, current_time, thread_count, thread_count-1);
+		_fillThread(tle_model, tle_angle, sgp_v, current_time, thread_count, thread_count-1);
 		
 		for(int i=0; i<thread_count-1; ++i){
 			fillThread[i].join();
 		}
 		
 		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, tle_v.size() * sizeof(mat4x4), tle_model, GL_DYNAMIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, sgp_v.size() * sizeof(mat4x4), tle_model, GL_DYNAMIC_DRAW);
 	} else {
-		if(current_update >= tle_v.size())current_update = 0;
-		TLEToMat4x4(tle_model[current_update], &tle_v[current_update], current_time);
+		if(current_update >= sgp_v.size())current_update = 0;
+		sgp4_solve_at_time(&sgp_v[current_update], current_time);
+		SGPToMat4x4(tle_model[current_update], &sgp_v[current_update]);
+		tle_angle[current_update] = -sgp_v[current_update].uk;
 		
 		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, current_update * sizeof(mat4x4), sizeof(mat4x4), (const void *)tle_model[current_update]);
@@ -136,54 +151,12 @@ void RenderTLE::computeRings(std::chrono::system_clock::time_point current_time,
 	}
 }
 
-bool RenderTLE::loadFile(std::string filename){
-	if(!LoadTLE(tle_v, filename)){
-		return false;
-	}
-	
-	if(tle_v.size() > MAX_TLE_ELEMENTS)
-		tle_v.resize(MAX_TLE_ELEMENTS);
-	
-	return true;
-}
-
-void _computePositionsFillThread(float *tle_angle, std::vector<tle_t> &tle_v, std::chrono::system_clock::time_point current_time, int stride, int offset){
-	for(int i=offset; i<tle_v.size(); i+=stride){
-		tle_angle[i] = TLEToAngle(&tle_v[i], current_time);
-	}
-}
-
-void RenderTLE::computePositions(std::chrono::system_clock::time_point current_time){
-	std::size_t thread_count = std::thread::hardware_concurrency();
-	/*//Single threaded
-	for(int i=0; i<tle_v.size(); ++i){
-		tle_angle[i] = TLEToAngle(&tle_v[i], current_time);
-	}
-	*/
-	
-	std::vector<std::thread> threads(thread_count-1);
-	
-	for(int i=0; i<thread_count-1; ++i)
-		threads[i] = std::thread(
-			_computePositionsFillThread,
-			tle_angle,
-			std::ref(tle_v),
-			current_time, 
-			thread_count, i
-		);
-		
-	_computePositionsFillThread(tle_angle, tle_v, current_time, thread_count, thread_count-1);
-	
-	for(int i=0; i<thread_count-1; ++i)
-		threads[i].join();
-}
-
 void RenderTLE::draw(bool draw_rings, bool draw_sats){
 	mat4x4 orbit;
 	
 	tle_t tle;
 	
-	float ring_visiblity = 1.f/tle_v.size();
+	float ring_visiblity = 1.f/sgp_v.size();
 	if(ring_visiblity < 0.06125f)
 		ring_visiblity = 0.06125f;
 	
@@ -201,8 +174,8 @@ void RenderTLE::draw(bool draw_rings, bool draw_sats){
 		(const GLfloat*) camera->getTransform()
 	);
 	
-	for(int i=0; i<tle_v.size(); i+=MAX_TLE_INSTANCES){
-		int count = tle_v.size()-i;
+	for(int i=0; i<sgp_v.size(); i+=MAX_TLE_INSTANCES){
+		int count = sgp_v.size()-i;
 		
 		if(count > MAX_TLE_INSTANCES)
 			count = MAX_TLE_INSTANCES;

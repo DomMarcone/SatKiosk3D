@@ -9,8 +9,7 @@
 #include <CompileShader.h>
 #include <LinkShaders.h>
 #include <TLEType.h>
-#include <TLEToMat4x4.h>
-#include <TLEToAngle.h>
+#include <SGPToMat4x4.h>
 #include <LoadText.h>
 #include <LoadTLE.h>
 
@@ -53,7 +52,7 @@ private :
 	
 	Camera *camera;
 	
-	std::vector<tle_t> tle_v;
+	std::vector<sgp4_t> sgp_v;
 	
 	mat4x4 tle_model[MAX_TLE_ELEMENTS];
 	float tle_angle[MAX_TLE_ELEMENTS];
@@ -67,8 +66,7 @@ public :
 	
 	~RenderTLE();
 	
-	void computeRings(std::chrono::system_clock::time_point current_time, bool all=false);
-	void computePositions(std::chrono::system_clock::time_point current_time);
+	void compute(std::chrono::system_clock::time_point current_time, bool all=false);
 	
 	void setCamera(Camera *cam);
 	bool loadFile(std::string filename);

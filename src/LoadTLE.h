@@ -3,6 +3,7 @@
 #define _LOAD_TLE_H
 
 #include <TLEType.h>
+#include <SGP.h>
 
 #include <iostream>
 #include <vector>
@@ -18,6 +19,6 @@
 #define M_PI 3.14159265359
 #endif //M_PI
 
-bool LoadTLE(std::vector<tle_t> &tleVector, std::string filename);
+bool LoadTLE(std::vector<sgp4_t> &sgpVector, std::string filename);
 
 #endif //_LOAD_TLE_H

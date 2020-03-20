@@ -81,10 +81,8 @@ add_library(SatKiosk3DLib
 	${SRC_DIR}/FetchTLE.h
 	${SRC_DIR}/FetchTLE.cc
 	${SRC_DIR}/TLEType.h
-	${SRC_DIR}/TLEToMat4x4.h
-	${SRC_DIR}/TLEToMat4x4.cc
-	${SRC_DIR}/TLEToAngle.h
-	${SRC_DIR}/TLEToAngle.cc
+	${SRC_DIR}/SGPToMat4x4.h
+	${SRC_DIR}/SGPToMat4x4.cc
 	${SRC_DIR}/LoadTLE.h
 	${SRC_DIR}/LoadTLE.cc
 	${SRC_DIR}/SGP.h

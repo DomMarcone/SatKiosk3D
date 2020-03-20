@@ -420,7 +420,7 @@ int main(int argc, char **argv){
 			std::cout << "Unable to aquire " << tle_url << std::endl;
 		}
 	}
-	rt->computeRings(std::chrono::system_clock::now(), true );
+	rt->compute(std::chrono::system_clock::now(), true );
 	
 	while(!glfwWindowShouldClose(GraphicsState.window)){
 		//View Loop
@@ -504,8 +504,7 @@ int main(int argc, char **argv){
 			re->setTime(now);
 			rm->setTime(now);
 		
-			rt->computeRings(now);
-			rt->computePositions(now);
+			rt->compute(now, true);
 		}
 		
 		rs->setDirection(re->getSunDirection());
