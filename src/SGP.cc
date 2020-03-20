@@ -9,7 +9,7 @@
 #include <cmath>
 #include <iostream>
 
-#define N 32
+#define N 10
 
 void sgp_solve_init(sgp_t *s, tle_t *t){
 	s->n0 = t->mean_motion;
@@ -197,13 +197,13 @@ void sgp4_solve_init(sgp4_t *s, tle_t *t){
 	s->n03 = t->mean_motion3;
 	s->i0 = t->inclination;
 	s->e0 = t->eccentricity;
-	s->M0 = t->mean_anomaly;
-	s->w0 = t->argument_of_periapsis;
-	s->loan0 = t->right_ascension;
+	s->XM0 = t->mean_anomaly;
+	s->OMEGAO = t->argument_of_periapsis;
+	s->XNODE0 = t->right_ascension;
 	s->bstar = t->bstar;
 	s->epoch = t->epoch;
 	
-	s->a1 = pow(XKE/s->n0, TOTHRD);
+	s->A1 = pow(XKE/s->n0, TOTHRD);
 	
 	float COSI0 = cos(s->i0);
 	float THETA2 = COSI0*COSI0;
@@ -212,17 +212,17 @@ void sgp4_solve_init(sgp4_t *s, tle_t *t){
 	float BETA02 = 1.0 - E0SQ;
 	float BETA0 = sqrt(BETA02);
 	
-	s->d1 = 1.5*CK2*X3THM1/(s->a1*s->a1*BETA0*BETA02);
+	s->D1 = 1.5*CK2*X3THM1/(s->A1*s->A1*BETA0*BETA02);
 	
-	s->a0 = s->a1*(1.0 - s->d1*(0.5*TOTHRD + s->d1*(1.0 + 134.0/81.0*s->d1)));
+	s->A0 = s->A1*(1.0 - s->D1*(0.5*TOTHRD + s->D1*(1.0 + 134.0/81.0*s->D1)));
 	
-	s->d0 = 1.5*CK2*X3THM1/(s->a0*s->a0*BETA0*BETA02);
+	s->D0 = 1.5*CK2*X3THM1/(s->A0*s->A0*BETA0*BETA02);
 	
-	s->n0dp = s->n0/(1.0 + s->d0);
+	s->XN0DP = s->n0/(1.0 + s->D0);
 	
-	s->a0dp = s->a0/(1.0 - s->d0);
+	s->A0DP = s->A0/(1.0 - s->D0);
 	
-	s->isimp = ((s->a0dp*(1.0 - s->e0)/AE) < (220.0/XKMPER + AE));
+	s->isimp = ((s->A0DP*(1.0 - s->e0)/AE) < (220.0/XKMPER + AE));
 }
 
 void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current_time){
@@ -243,44 +243,44 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 	float S4 = S;
 	float Q0MS24 = QOMS2T;
 	
-	s->p = (s->a0dp*(1.0 - s->e0) - AE)*XKMPER;
+	s->P = (s->A0DP*(1.0 - s->e0) - AE)*XKMPER;
 	
-	if(s->p < 156.0){//IF P >= 156 : GOTO 10
-		S4 = s->p - 78.0;
-		if(s->p <= 98.0){ //IF P > 98 : GO TO 9
+	if(s->P < 156.0){//IF P >= 156 : GOTO 10
+		S4 = s->P - 78.0;
+		if(s->P <= 98.0){ //IF P > 98 : GO TO 9
 			S4 = 20.0;
 		}
 		Q0MS24 = pow((120.0 - S4)*AE/XKMPER, 4.0);//LINE 09
 		S4 = S4/XKMPER + AE;
 	}
 	
-	float PINVSQ = 1.0/(s->a0dp*s->a0dp*BETA0*BETA02);//LINE 10
-	float TSI = 1.0/(s->a0dp-S4);
-	float ETA = s->a0dp*s->e0*TSI;
+	float PINVSQ = 1.0/(s->A0DP*s->A0DP*BETA0*BETA02);//LINE 10
+	float TSI = 1.0/(s->A0DP-S4);
+	float ETA = s->A0DP*s->e0*TSI;
 	float ETASQ = ETA*ETA;
 	float EETA = s->e0*ETA;
 	float PSISQ = fabs(1.0 - ETASQ);
 	float COEF = pow(Q0MS24*TSI, 4.0);
 	float COEF1 = COEF/pow(PSISQ, 3.5);
-	float C2 = COEF1*s->n0dp*
-		(s->a0dp*(1.0 + 1.5*ETASQ + EETA*(4.0 + ETASQ)) + 
+	float C2 = COEF1*s->XN0DP*
+		(s->A0DP*(1.0 + 1.5*ETASQ + EETA*(4.0 + ETASQ)) + 
 			0.75*CK2*TSI/PSISQ*X3THM1*(8.0 + 3.0*ETASQ*(8.0 + ETASQ)));
 	float C1 = s->bstar*C2;
 	float SINI0 = sin(s->i0);
 	float A30VK2 = XJ3/CK2*pow(AE, 3.0);
-	float C3 = COEF*TSI*A30VK2*s->n0dp*AE*SINI0/s->e0;
+	float C3 = COEF*TSI*A30VK2*s->XN0DP*AE*SINI0/s->e0;
 	float X1MTH2 = 1.0 - THETA2;
-	float C4 = 2.*s->n0dp*COEF1*s->a0dp*BETA02*(ETA*
-		(2.+.5*ETASQ)+s->e0*(.5+2.*ETASQ)-2.*CK2*TSI/
-		(s->a0dp*PSISQ)*(-3.*X3THM1*(1.-2.*EETA + ETASQ*
-		(1.5 - 0.5*EETA)) + 0.75*X1MTH2*(2.*ETASQ-EETA*
-		(1.0 + ETASQ))*cos(2.*s->loan0)));
-	float C5 = 2.0*COEF1*s->a0dp*BETA02*(1.+2.75*(ETASQ+EETA)+EETA*ETASQ);
+	float C4 = 2.0*s->XN0DP*COEF1*s->A0DP*BETA02*(ETA*
+		(2.0 + 0.5*ETASQ) + s->e0*(0.5 + 2.0*ETASQ) - 2.0*CK2*TSI/
+		(s->A0DP*PSISQ)*(-3.0*X3THM1*(1.0 - 2.0*EETA + ETASQ*
+		(1.5 - 0.5*EETA)) + 0.75*X1MTH2*(2.0*ETASQ - EETA*
+		(1.0 + ETASQ))*cos(2.0*s->OMEGAO)));
+	float C5 = 2.0*COEF1*s->A0DP*BETA02*(1.+2.75*(ETASQ+EETA)+EETA*ETASQ);
 	float THETA4 = THETA2*THETA2;
-	TEMP1 = 3.0*CK2*PINVSQ*s->n0dp;
+	TEMP1 = 3.0*CK2*PINVSQ*s->XN0DP;
 	TEMP2 = TEMP1*CK2*PINVSQ;
-	TEMP3 = 1.25*CK4*PINVSQ*PINVSQ*s->n0dp;
-	float XMDOT = s->n0dp + 0.5*TEMP1*BETA0*X3THM1 + 0.0625*TEMP2*BETA0*
+	TEMP3 = 1.25*CK4*PINVSQ*PINVSQ*s->XN0DP;
+	float XMDOT = s->XN0DP + 0.5*TEMP1*BETA0*X3THM1 + 0.0625*TEMP2*BETA0*
 		(13.0 - 78.0*THETA2 + 137.0*THETA4);
 	float X1M5TH = 1.0 - 5.0*THETA2;
 	float OMGDOT = -0.5*TEMP1*X1M5TH + 0.0625*TEMP2*(7.0 - 114.0*THETA2 + 
@@ -288,23 +288,23 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 	float XHDOT1 = -TEMP1*COSI0;
 	float XNODOT = XHDOT1 + (0.5*TEMP2*(4.0 - 19.0*THETA2) + 2.0*TEMP3*(3.0 -
 		7.0*THETA2))*COSI0;
-	float OMGCOF = s->bstar*C3*cos(s->loan0);
+	float OMGCOF = s->bstar*C3*cos(s->OMEGAO);
 	float XMCOF = -TOTHRD*COEF*s->bstar*AE/EETA;
 	float XNODCF = 3.5*BETA02*XHDOT1*C1;
 	float T2COF = 1.5*C1;
 	float XLCOF = 0.125*A30VK2*SINI0*(3.0 + 5.0*COSI0)/(1.0 + COSI0);
 	float AYCOF = 0.25*A30VK2*SINI0;
-	float DELM0 = pow(1.0 + ETA*cos(s->M0), 3.0);
-	float SINM0 = sin(s->M0);
+	float DELM0 = pow(1.0 + ETA*cos(s->XM0), 3.0);
+	float SINM0 = sin(s->XM0);
 	float X7THM1 = 7.0*THETA2 - 1.0;
 	
 	float D2, D3, D4, T3COF, T4COF, T5COF;
 	if(!s->isimp){ //GO TO LINE 90
 		float C1SQ = C1*C1;
-		D2 = 4.0*s->a0dp*TSI*C1SQ;
+		D2 = 4.0*s->A0DP*TSI*C1SQ;
 		TEMP = D2*TSI*C1/3.0;
-		D3 = (17.0*s->a0dp + S4)*TEMP;
-		D4 = 0.5*TEMP*s->a0dp*TSI*(221.0*s->a0dp + 31.0*S4)*C1;
+		D3 = (17.0*s->A0DP + S4)*TEMP;
+		D4 = 0.5*TEMP*s->A0DP*TSI*(221.0*s->A0DP + 31.0*S4)*C1;
 		T3COF = D2 + 2.0*C1SQ;
 		T4COF = 0.25*(3.0*D3 + C1*(12.0*D2 + 10.0*C1SQ));
 		T5COF = 0.2*(3.0*D4 + 12.0*C1*D3 + 6.0*D2*D2 + 
@@ -312,15 +312,17 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 	}//LINE 90
 	
 	//Update for secular gravity and atmospheric drag
-	float XMDF = s->M0 + XMDOT*delta_t;
-	float OMGADF = s->loan0 + OMGDOT*delta_t;
-	float XN0DDF = s->n02 + XNODOT*delta_t;
+	float XMDF = s->XM0 + XMDOT*delta_t;
+	float OMGADF = s->OMEGAO + OMGDOT*delta_t;
+	float XN0DDF = s->XNODE0 + XNODOT*delta_t;
 	
-	s->loan = OMGADF;
+	s->OMEGA = OMGADF;
 	
 	float XMP = XMDF;
 	float TSQ = delta_t*delta_t;
-	float XN0DE = XN0DDF + XNODCF*TSQ;
+	
+	s->XNODE = XN0DDF + XNODCF*TSQ;
+	
 	float TEMPA = 1.0 - C1*delta_t;
 	float TEMPE = s->bstar*C4*delta_t;
 	float TEMPL = T2COF*TSQ;
@@ -330,7 +332,7 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 		float DELM = XMCOF*(pow(1.0 + ETA*cos(XMDF), 3.0) - DELM0);
 		float TEMP = DEL0MG+DELM;
 		XMP = XMDF + TEMP;
-		s->loan = OMGADF - TEMP;
+		s->OMEGA = OMGADF - TEMP;
 		float TCUBE = TSQ*delta_t;
 		float TFOUR = delta_t*TCUBE;
 		TEMPA = TEMPA - D2*TSQ - D3*TCUBE - D4*TFOUR;
@@ -338,28 +340,28 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 		TEMPL = TEMPL + T3COF*TCUBE + TFOUR*(T4COF + delta_t*T5COF);
 	}//LINE 110
 	
-	s->a = s->a0dp*TEMPA*TEMPA;
+	s->a = s->A0DP*TEMPA*TEMPA;
 	
 	s->e = s->e0 - TEMPE;
 	
-	float XL = XMP + s->loan + XN0DE + s->n0dp*TEMPL;
+	float XL = XMP + s->OMEGA + s->XNODE + s->XN0DP*TEMPL;
 	float BETA = sqrt(1.0 - s->e*s->e);
 	
 	s->n = pow(XKE/s->a, 1.5);
 	
 	//Long Periodics
-	float AXN = s->e*cos(s->loan);
+	float AXN = s->e*cos(s->OMEGA);
 	TEMP = 1.0/(s->a*BETA*BETA);
 	float XLL = TEMP*XLCOF*AXN;
 	float AYNL = TEMP*AYCOF;
 	float XLT = XL + XLL;
-	float AYN = s->e*sin(s->loan) + AYNL;
+	float AYN = s->e*sin(s->OMEGA) + AYNL;
 	
 	//Solve Keplers Equations
-	float CAPU = fmod(XLT - XN0DE, TWOPI);
+	float CAPU = fmod(XLT - s->XNODE, TWOPI);
 	TEMP2 = CAPU;
 	
-	float SINEPW, COSEPW;
+	float SINEPW, COSEPW, EPW;
 	for(int i=0; i<N; ++i){
 		SINEPW = sin(TEMP2);
 		COSEPW = cos(TEMP2);
@@ -367,9 +369,8 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 		TEMP4 = AYN*COSEPW;
 		TEMP5 = AXN*COSEPW;
 		TEMP6 = AYN*SINEPW;
-		float EPW = (CAPU - TEMP4 + TEMP3 - TEMP2)/(1.0 - TEMP5 - TEMP6) + TEMP2;
+		EPW = (CAPU - TEMP4 + TEMP3 - TEMP2)/(1.0 - TEMP5 - TEMP6) + TEMP2;
 		if(abs(EPW - TEMP2) <= E6A) break; //GO TO 140
-		s->w = EPW;
 		TEMP2 = EPW;
 	}
 	
@@ -405,7 +406,7 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 	s->rk = s->r*(1.0 - 1.5*TEMP2*BETAL*X3THM1) + 0.5*TEMP1*X1MTH2*COS2U;
 	s->uk = s->u - 0.25*TEMP2*X7THM1*SIN2U;
 	
-	float XN0DEK = XN0DE + 1.5*TEMP2*COSI0*SIN2U;
+	float XN0DEK = s->XNODE + 1.5*TEMP2*COSI0*SIN2U;
 	
 	s->ik = s->i0 + 1.5*TEMP2*COSI0*SINI0*COS2U;
 	s->rdk = s->rd - s->n*TEMP1*X1MTH2*SIN2U;
@@ -442,15 +443,18 @@ void sgp4_solve_at_time(sgp4_t *s, std::chrono::system_clock::time_point current
 	std::cout << "V final         = " << s->rv_v[0] << ", " << s->rv_v[1] << ", " << s->rv_v[2] << std::endl;
 	std::cout << "|v|             = " << vec3_len(s->r_v) << "km/s" << std::endl;
 	std::cout << "Mean motion0    = " << s->n0 << std::endl;
-	std::cout << "Mean motion     = " << s->n0dp << std::endl;
+	std::cout << "Mean motion     = " << s->XN0DP << std::endl;
 	std::cout << "Inclination0    = " << s->i0 << std::endl;
 	std::cout << "Inclination     = " << s->ik << std::endl;
 	std::cout << "eccentricity0   = " << s->e0 << std::endl;
 	std::cout << "eccentricity    = " << s->e  << std::endl;
-	std::cout << "Semi major axis = " << s->a0dp << std::endl;
+	std::cout << "argument of p0  = " << s->OMEGAO  << std::endl;
+	std::cout << "argument of p   = " << s->OMEGA  << std::endl;
+	std::cout << "uk              = " << s->uk << std::endl;
+	std::cout << "Semi major axis = " << s->A0DP*XKMPER << std::endl;
 	std::cout << "Is Imp          = " << s->isimp << std::endl;
 	std::cout << "altitude        = " << s->r << "km" << std::endl;
-	std::cout << "periapsis       = " << s->p << std::endl;
+	std::cout << "periapsis       = " << s->P << std::endl;
 	std::cout << "apoapsis        = " << (s->a-1.0)*XKMPER << std::endl;
 	std::cout << "radius          = " << s->r*XKMPER << std::endl;
 	std::cout << "radius k        = " << s->rk*XKMPER << std::endl;

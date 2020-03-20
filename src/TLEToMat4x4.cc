@@ -15,32 +15,30 @@
 void TLEToMat4x4(mat4x4 m, tle_t *t, std::chrono::system_clock::time_point current_time){
 	mat4x4 radius, earth_tilt, periapsis, right_ascending_node, inclination, translate, temp;
 	float foci, e;
-	//float eccentricity = (1.f - t->eccentricity);
 	
 	float period = 86400.f/t->mean_motion;
 	
-	float r = pow( 
-		((period*period) * 3.9857605760e5) /
-		(4.0 * (3.14159265f * 3.14159265f) )
-	, (1.0/3.0) );
+	float r;
 	
 	sgp4_t s;
 	
 	sgp4_solve_init(&s, t);
 	sgp4_solve_at_time(&s, current_time);
 	
+	r = s.A0DP*XKMPER;
+	
 	mat4x4_identity(radius);
 	mat4x4_identity(m);
 	
-	radius[0][0] = s.r*XKMPER;
-	radius[2][2] = s.r*XKMPER/(1.0 - s.e);
+	radius[0][0] = r;
+	radius[2][2] = r*(1.0 - s.e);
 	
 	foci = sqrt(
-		radius[2][2]*radius[2][2] -
-		radius[0][0]*radius[0][0]
+		radius[0][0]*radius[0][0] -
+		radius[2][2]*radius[2][2]
 	);
 	
-	mat4x4_translate(translate, 0.f, 0.f, foci);
+	mat4x4_translate(translate, foci, 0.f, 0.f);
 	/*
 	//intrin_mat4x4_rotate_Z(earth_tilt, m, -EARTH_TILT);	
 	//intrin_mat4x4_rotate_Y(right_ascending_node, earth_tilt, -t->right_ascension);
@@ -60,9 +58,9 @@ void TLEToMat4x4(mat4x4 m, tle_t *t, std::chrono::system_clock::time_point curre
 	*/
 	
 	//SGP4
-	intrin_mat4x4_rotate_Y(right_ascending_node, m, s.loan);
+	intrin_mat4x4_rotate_Y(right_ascending_node, m, s.XNODE - 3.14159265f/2.f);
 	intrin_mat4x4_rotate_Z(inclination, right_ascending_node, s.ik);
-	intrin_mat4x4_rotate_Y(periapsis, inclination, s.w);
+	intrin_mat4x4_rotate_Y(periapsis, inclination, s.OMEGA);
 	intrin_mat4x4_mul(temp, periapsis, translate);	
 	intrin_mat4x4_mul(m, temp, radius);
 }

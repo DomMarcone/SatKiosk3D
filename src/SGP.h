@@ -46,15 +46,15 @@ typedef struct sgp_t {
 } sgp_t;
 
 typedef struct sgp4_t {
-	float n0, i0, e0, M0, w0, loan0, n02, n03, bstar;//TLE coefficients
+	float n0, i0, e0, XM0, OMEGAO, XNODE0, n02, n03, bstar;//TLE coefficients
 	std::chrono::system_clock::time_point epoch;
 	
 	//Initial non-time dependent
-	float a1, d1, a0, d0, n0dp, a0dp;
+	float A1, D1, A0, D0, XN0DP, A0DP;
 	bool isimp;
 	
 	//Time dependents, results
-	float p, loan, a, e, n, w, r, rd, rfd, u, rk, uk, ik, rdk, rfdk;
+	float P, XNODE, a, e, n, OMEGA, r, rd, rfd, u, rk, uk, ik, rdk, rfdk;
 	vec3 r_v, rv_v;
 } sgp4_t;
 

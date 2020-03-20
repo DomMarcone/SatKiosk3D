@@ -60,7 +60,7 @@ void EarthTransform::setRotationOffset(float r){
 }
 
 mat4x4 &EarthTransform::getTransform(){
-	/*std::chrono::duration<double> elapsed_seconds = current_time - march_equinox;
+	std::chrono::duration<double> elapsed_seconds = current_time - march_equinox;
 	
 	double earth_rotation = -fmod(
 		elapsed_seconds.count(), 
@@ -71,33 +71,34 @@ mat4x4 &EarthTransform::getTransform(){
 	earth_rotation += rotation_offset;
 	
 	mat4x4 rotate_tilt;
-	mat4x4_identity(transform);
-	//mat4x4_identity(rotate_tilt);
+	//mat4x4_identity(transform);
+	mat4x4_identity(rotate_tilt);
 	
-	//intrin_mat4x4_rotate_Z(transform, rotate_tilt, -0.3f);//Fudge factor
+	intrin_mat4x4_rotate_Z(transform, rotate_tilt, -0.3f);//Fudge factor
 	intrin_mat4x4_rotate_X(rotate_tilt, transform, -tilt);
 	intrin_mat4x4_rotate_Y(transform, rotate_tilt, (float)earth_rotation);
-	*/ //Moving earth's rotation and tilt to getSunDirection.
+	//Moving earth's rotation and tilt to getSunDirection.
 	return transform;
 }
 
 vec3 *EarthTransform::getSunDirection(){
 	std::chrono::duration<double> since_day_zero = current_time - day_zero;
-	std::chrono::duration<double> since_march_equinox = current_time - march_equinox;
+	//std::chrono::duration<double> since_march_equinox = current_time - march_equinox;
 	
 	double earth_orbital_position = fmod(
 		since_day_zero.count(), 
 		EARTH_SIDEREAL_PERIOD_SECONDS
 	)/EARTH_SIDEREAL_PERIOD_SECONDS;
 	
+	//Rotate prograde
+	earth_orbital_position = 1.0 - earth_orbital_position;
+	earth_orbital_position *= M_PI*2.0;	
+	/*
+	
 	double earth_rotation = fmod(
 		since_march_equinox.count(), 
 		EARTH_SIDEREAL_DAY
 	)/EARTH_SIDEREAL_DAY;
-	
-	//Rotate prograde
-	earth_orbital_position = 1.0 - earth_orbital_position;
-	earth_orbital_position *= M_PI*2.0;	
 
 	earth_rotation *= M_PI*2.0;
 	earth_rotation += rotation_offset;
@@ -109,6 +110,10 @@ vec3 *EarthTransform::getSunDirection(){
 	sun_direction[0] = (float)cos(earth_orbital_position + earth_rotation)*tilt_cos;
 	sun_direction[1] = tilt_sin;
 	sun_direction[2] = (float)sin(earth_orbital_position + earth_rotation)*tilt_cos;
+	*/
+	sun_direction[0] = (float)cos(earth_orbital_position);
+	sun_direction[1] = 0.f;
+	sun_direction[2] = (float)sin(earth_orbital_position);
 	
 	return &sun_direction;
 }
