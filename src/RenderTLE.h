@@ -66,7 +66,7 @@ public :
 	
 	~RenderTLE();
 	
-	void compute(std::chrono::system_clock::time_point current_time, bool all=false);
+	void compute(std::chrono::system_clock::time_point current_time);
 	
 	void setCamera(Camera *cam);
 	bool loadFile(std::string filename);

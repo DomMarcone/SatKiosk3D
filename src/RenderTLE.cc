@@ -110,45 +110,32 @@ void _fillThread(mat4x4 *tle_m, float *tle_angle, std::vector<sgp4_t> &sgp_v, st
 	for(int i=offset; i<sgp_v.size(); i += stride){
 		sgp4_solve_at_time(&sgp_v[i], current_time);
 		SGPToMat4x4(tle_m[i], &sgp_v[i]);
-		tle_angle[i] = -sgp_v[i].uk;
+		tle_angle[i] = -sgp_v[i].uk + 3.14159265f/2.f;
 	}
 }
 
-void RenderTLE::compute(std::chrono::system_clock::time_point current_time, bool all){
+void RenderTLE::compute(std::chrono::system_clock::time_point current_time){
 	std::size_t thread_count = std::thread::hardware_concurrency();
-	static int current_update = 0;
 	/* // Single threaded example
 	for(int i=0; i<sgp_v.size(); ++i){
 		sgp4_solve_at_time(&sgp_v[i], current_time);
 		SGPToMat4x4(tle_model[i], &sgp_v[i]);
 	}
 	*/
-	if(all){	
-		std::vector<std::thread> fillThread(thread_count-1);
+	std::vector<std::thread> fillThread(thread_count-1);
 		
-		for(int i=0; i<thread_count-1; ++i){
-			fillThread[i] = std::thread(_fillThread, tle_model, tle_angle, std::ref(sgp_v), current_time, thread_count, i);
-		}
-		
-		_fillThread(tle_model, tle_angle, sgp_v, current_time, thread_count, thread_count-1);
-		
-		for(int i=0; i<thread_count-1; ++i){
-			fillThread[i].join();
-		}
-		
-		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sgp_v.size() * sizeof(mat4x4), tle_model, GL_DYNAMIC_DRAW);
-	} else {
-		if(current_update >= sgp_v.size())current_update = 0;
-		sgp4_solve_at_time(&sgp_v[current_update], current_time);
-		SGPToMat4x4(tle_model[current_update], &sgp_v[current_update]);
-		tle_angle[current_update] = -sgp_v[current_update].uk;
-		
-		glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, current_update * sizeof(mat4x4), sizeof(mat4x4), (const void *)tle_model[current_update]);
-		
-		current_update++;
+	for(int i=0; i<thread_count-1; ++i){
+		fillThread[i] = std::thread(_fillThread, tle_model, tle_angle, std::ref(sgp_v), current_time, thread_count, i);
 	}
+	
+	_fillThread(tle_model, tle_angle, sgp_v, current_time, thread_count, thread_count-1);
+	
+	for(int i=0; i<thread_count-1; ++i){
+		fillThread[i].join();
+	}
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, uModelBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sgp_v.size() * sizeof(mat4x4), tle_model, GL_DYNAMIC_DRAW);
 }
 
 void RenderTLE::draw(bool draw_rings, bool draw_sats){

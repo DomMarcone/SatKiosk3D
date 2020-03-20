@@ -28,15 +28,15 @@ void SGPToMat4x4(mat4x4 m, sgp4_t *s){
 	mat4x4_identity(radius);
 	mat4x4_identity(m);
 	
-	radius[0][0] = r;
-	radius[2][2] = r*(1.0 - s->e);
+	radius[0][0] = r*(1.0 - s->e);
+	radius[2][2] = r;
 	
 	foci = sqrt(
-		radius[0][0]*radius[0][0] -
-		radius[2][2]*radius[2][2]
+		radius[2][2]*radius[2][2] -
+		radius[0][0]*radius[0][0]
 	);
 	
-	mat4x4_translate(translate, foci, 0.f, 0.f);
+	mat4x4_translate(translate, 0.f, 0.f, foci);
 	/*
 	//intrin_mat4x4_rotate_Z(earth_tilt, m, -EARTH_TILT);	
 	//intrin_mat4x4_rotate_Y(right_ascending_node, earth_tilt, -t->right_ascension);

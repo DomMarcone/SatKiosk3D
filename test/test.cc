@@ -420,7 +420,6 @@ int main(int argc, char **argv){
 			std::cout << "Unable to aquire " << tle_url << std::endl;
 		}
 	}
-	rt->compute(std::chrono::system_clock::now(), true );
 	
 	while(!glfwWindowShouldClose(GraphicsState.window)){
 		//View Loop
@@ -504,7 +503,7 @@ int main(int argc, char **argv){
 			re->setTime(now);
 			rm->setTime(now);
 		
-			rt->compute(now, true);
+			rt->compute(now);
 		}
 		
 		rs->setDirection(re->getSunDirection());
@@ -521,6 +520,7 @@ int main(int argc, char **argv){
 	
 	delete rs;
 	delete rt;
+	delete rm;
 	delete re;
 	delete GraphicsState.camera;
 	
