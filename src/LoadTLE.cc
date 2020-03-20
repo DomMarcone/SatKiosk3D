@@ -111,7 +111,7 @@ bool LoadTLE(std::vector<sgp4_t> &sgpVector, std::string filename){
 		sgpVector.push_back(temps);
 	} 
 	
-	std::cout << "Loaded " << sgpVector.size() << " elements." << std::endl;
+	std::cout << "Loaded " << sgpVector.size() << " elements from " << filename << std::endl;
 	
 	inFile.close();
 	return true;

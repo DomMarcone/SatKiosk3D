@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstring>
 #include <ctime>
+#include <vector>
 
 #include <Format3D.h>
 #include <LoadText.h>
@@ -235,7 +236,9 @@ int main(int argc, char **argv){
 	RenderSun *rs;
 	RenderMoon *rm;
 	
-	std::string tle_url = TLE_URL, tle_file = TLE_FILE;
+	std::vector<std::string> urls, files;
+	
+	//std::string tle_url = TLE_URL, tle_file = TLE_FILE;
 	
 	bool show_gl_info = false;
 	bool multisample = false;
@@ -293,15 +296,17 @@ int main(int argc, char **argv){
 		if(strcmp(argument, "-d")==0){
 			if(i<argc-1){
 				++i;
+				std::string temp_url = argv[i];
+				std::string temp_filename = temp_url.substr( temp_url.find_last_of("/\\")+1 );
+				//tle_url = argv[i];
+				//tle_file = tle_url.substr( tle_url.find_last_of("/\\")+1 );
 				
-				tle_url = argv[i];
-				tle_file = tle_url.substr( tle_url.find_last_of("/\\")+1 );
-				
-				std::cout << "Downloading TLE from " << tle_url << std::endl;
-				std::cout << "Saving to " << tle_file << std::endl;
-				FetchTLE(tle_url);
+				std::cout << "Downloading TLE from " << temp_url << std::endl;
+				std::cout << "Saving to " << temp_filename << std::endl;
+				FetchTLE(temp_url);
+				files.push_back(temp_filename);
 			} else {
-				std::cout << "No file specified! Defaulting to " << TLE_URL << std::endl;
+				std::cout << "No file specified!" << std::endl;
 			}
 			continue;
 		}
@@ -309,7 +314,8 @@ int main(int argc, char **argv){
 		if(strcmp(argument, "-l")==0){
 			if(i<argc-1){
 				++i;
-				tle_file = argv[i];
+				//tle_file = argv[i];
+				files.push_back(argv[i]);
 			} else {
 				std::cout << "No file specified! Defaulting to " << TLE_FILE << std::endl;
 			}
@@ -413,11 +419,19 @@ int main(int argc, char **argv){
 	rs = new RenderSun(GraphicsState.camera);
 	rm = new RenderMoon(GraphicsState.camera);
 	
-	if(!rt->loadFile( tle_file )){
-		std::cout << "Attempting to download TLE Data." << std::endl;
-		FetchTLE( tle_url );
-		if(!rt->loadFile( tle_file )){
-			std::cout << "Unable to aquire " << tle_url << std::endl;
+	if(files.size()==0){
+		if(!rt->loadFile( TLE_FILE )){
+			std::cout << "Attempting to download default TLE Data." << std::endl;
+			FetchTLE( TLE_URL );
+			if(!rt->loadFile( TLE_FILE )){
+				std::cout << "Unable to aquire default TLE :" << TLE_URL << std::endl;
+			}
+		}
+	}
+	
+	for(int i=0; i<files.size(); ++i){
+		if(!rt->loadFile(files[i])){
+			std::cout << "Unable to load " << files[i] << std::endl;
 		}
 	}
 	
