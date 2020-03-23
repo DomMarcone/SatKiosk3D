@@ -13,16 +13,7 @@
 #include <ctime>
 #include <vector>
 
-#include <Format3D.h>
-#include <LoadText.h>
-#include <PlyToFormat3D.h>
-#include <Image.h>
-#include <LoadImagePNG.h>
 #include <Camera.h>
-#include <CompileShader.h>
-#include <LinkShaders.h>
-#include <DrawFormat3D.h>
-#include <ImageToTexture.h>
 #include <GPSTypes.h>
 #include <GPSConvert.h>
 #include <FetchTLE.h>

@@ -17,9 +17,6 @@ typedef struct tle_t{
 	float mean_anomaly;
 	float bstar;
 	std::chrono::system_clock::time_point epoch;
-	
-	//Computed
-	//float radius;//TODO : Remove
 } tle_t;
 
 #endif //_TLE_TYPE_H

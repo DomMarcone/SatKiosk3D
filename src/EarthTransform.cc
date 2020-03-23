@@ -77,13 +77,12 @@ mat4x4 &EarthTransform::getTransform(){
 	intrin_mat4x4_rotate_Z(transform, rotate_tilt, -0.3f);//Fudge factor
 	intrin_mat4x4_rotate_X(rotate_tilt, transform, -tilt);
 	intrin_mat4x4_rotate_Y(transform, rotate_tilt, (float)earth_rotation);
-	//Moving earth's rotation and tilt to getSunDirection.
+	
 	return transform;
 }
 
 vec3 *EarthTransform::getSunDirection(){
 	std::chrono::duration<double> since_day_zero = current_time - day_zero;
-	//std::chrono::duration<double> since_march_equinox = current_time - march_equinox;
 	
 	double earth_orbital_position = fmod(
 		since_day_zero.count(), 
@@ -93,24 +92,7 @@ vec3 *EarthTransform::getSunDirection(){
 	//Rotate prograde
 	earth_orbital_position = 1.0 - earth_orbital_position;
 	earth_orbital_position *= M_PI*2.0;	
-	/*
 	
-	double earth_rotation = fmod(
-		since_march_equinox.count(), 
-		EARTH_SIDEREAL_DAY
-	)/EARTH_SIDEREAL_DAY;
-
-	earth_rotation *= M_PI*2.0;
-	earth_rotation += rotation_offset;
-	
-	float tilt_amount = -tilt*sin(-earth_orbital_position - 3.14159265f/2.f);
-	float tilt_sin = sin(tilt_amount);
-	float tilt_cos = cos(tilt_amount);
-	
-	sun_direction[0] = (float)cos(earth_orbital_position + earth_rotation)*tilt_cos;
-	sun_direction[1] = tilt_sin;
-	sun_direction[2] = (float)sin(earth_orbital_position + earth_rotation)*tilt_cos;
-	*/
 	sun_direction[0] = (float)cos(earth_orbital_position);
 	sun_direction[1] = 0.f;
 	sun_direction[2] = (float)sin(earth_orbital_position);

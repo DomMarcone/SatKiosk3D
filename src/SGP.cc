@@ -179,16 +179,6 @@ void sgp_solve_at_time(sgp_t *s, std::chrono::system_clock::time_point current_t
 		s->rv_v[i] = vecU[i]*s->rd + vecV[i]*s->rvd;
 	}
 	
-	/*
-	std::cout << "R final = " << s->r_v[0]*XKMPER << ", " << s->r_v[1]*XKMPER << ", " << s->r_v[2]*XKMPER << std::endl;
-	std::cout << "v = " << vec3_len(s->r_v)*XKMPER << "km/s" << std::endl;
-	std::cout << "altitude = " << s->r*XKMPER << "km" << std::endl;
-	std::cout << "eccentricity0 = " << s->e0 << std::endl;
-	std::cout << "eccentricity = " << s->e  << std::endl;
-	std::cout << "periapsis = " << s->p  << std::endl;
-	std::cout << "apoapsis = " << s->a  << std::endl;
-	std::cout << "radius = " << s->r << std::endl;
-	*/
 }
 
 void sgp4_solve_init(sgp4_t *s, tle_t *t){
