@@ -110,7 +110,7 @@ void _fillThread(mat4x4 *tle_m, float *tle_angle, std::vector<sgp4_t> &sgp_v, st
 	for(int i=offset; i<sgp_v.size(); i += stride){
 		sgp4_solve_at_time(&sgp_v[i], current_time);
 		SGPToMat4x4(tle_m[i], &sgp_v[i]);
-		tle_angle[i] = -sgp_v[i].uk + 3.14159265f/2.f;
+		tle_angle[i] = sgp_v[i].uk - sgp_v[i].OMEGA;
 	}
 }
 
